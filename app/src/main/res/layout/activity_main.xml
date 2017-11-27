@@ -5,181 +5,61 @@
     android:id="@+id/linearLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:
-    tools:context="emily.ackland.student.curtin.edu.au.audioplayer.MainActivity">
+    tools:context="emily.ackland.student.curtin.edu.au.audioplayer.MainActivity"
+    tools:targetApi="JELLY_BEAN">
 
-
-    <!--
-
-        <TextView
-            android:id="@+id/track_two"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/track_one"
-            app:layout_constraintVertical_bias="0.0" />
-
-        <TextView
-            android:id="@+id/track_three"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/track_two"
-            app:layout_constraintVertical_bias="0.0" />
-
-        <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <android.support.constraint.Guideline
-            android:id="@+id/guideline"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_begin="201dp" />
-
-        <android.support.constraint.Guideline
-            android:id="@+id/guideline2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_begin="175dp" />
-
-        <android.support.constraint.Guideline
-            android:id="@+id/guideline3"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            app:layout_constraintGuide_begin="350dp" />
-
-        <ImageButton
-            android:id="@+id/imageButton6"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_play_arrow_black_24dp"
-            tools:layout_editor_absoluteX="177dp"
-            tools:layout_editor_absoluteY="327dp" />
-
-        <ImageButton
-            android:id="@+id/imageButton7"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_fast_forward_black_24dp"
-            tools:layout_editor_absoluteX="250dp"
-            tools:layout_editor_absoluteY="327dp" />
-
-        <ImageButton
-            android:id="@+id/imageButton8"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_fast_rewind_black_24dp"
-            tools:layout_editor_absoluteX="100dp"
-            tools:layout_editor_absoluteY="327dp" />
-
-        <ImageButton
-            android:id="@+id/imageButton9"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_skip_next_black_24dp"
-            tools:layout_editor_absoluteX="320dp"
-            tools:layout_editor_absoluteY="327dp" />
-
-        <ImageButton
-            android:id="@+id/imageButton10"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:srcCompat="@drawable/ic_skip_previous_black_24dp"
-            tools:layout_editor_absoluteX="16dp"
-            tools:layout_editor_absoluteY="327dp" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical" />-->
-
-
-    <ScrollView
-        android:id="@+id/scrollView2"
+    <ListView
+        android:id="@+id/tracklist"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="0dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <TextView
-                c
-                android:layout_width="match_parent"
-                android:layout_height="@android:dimen/app_icon_size"
-        </LinearLayout>
-
-    </ScrollView>
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"></ListView>
 
     <LinearLayout
-        android:id="@+id/audiotracklist"
-        android:layout_width="wrap_content"
+        android:id="@+id/mediabar"
+        android:layout_width="match_parent"
         android:layout_height="@android:dimen/app_icon_size"
-        tools:layout_editor_absoluteX="120dp"
-        tools:layout_editor_absoluteY="463dp">
+        android:background="#fff"
+        app:layout_constraintBottom_toBottomOf="parent">
+
 
         <ImageButton
             android:id="@+id/prevbutton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintEnd_toStartOf="@+id/scrollView2"
+            android:layout_marginStart="120dp"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/scrollView2"
-            app:srcCompat="@drawable/ic_skip_previous_black_24dp"
-            tools:layout_editor_absoluteY="467dp"
-
+            app:srcCompat="@drawable/ic_skip_previous_black_24dp" />
 
         <ImageButton
             android:id="@+id/playbutton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_constraintEnd_toStartOf="@+id/scrollView2"
+            android:baselineAligned="false"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/scrollView2"
-            app:srcCompat="@drawable/ic_play_arrow_black_24dp"
-            tools:layout_editor_absoluteY="467dp" />
+            app:srcCompat="@drawable/ic_play_arrow_black_24dp" />
 
         <ImageButton
             android:id="@+id/skipbutton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-
-            app:layout_constraintEnd_toStartOf="@+id/scrollView2"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/scrollView2"
-            app:srcCompat="@drawable/ic_skip_next_black_24dp"
-            tools:layout_editor_absoluteY="467dp" />
+            app:srcCompat="@drawable/ic_skip_next_black_24dp" />
     </LinearLayout>
 
-
-
-<!--    <ImageButton
-        android:id="@+id/pausebutton"
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline5"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toStartOf="@+id/scrollView2"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/scrollView2"
-        app:srcCompat="@drawable/ic_pause_black_24dp"
-        tools:layout_editor_absoluteY="467dp" />-->
-
-
-
+        android:layout_marginEnd="191dp"
+        android:layout_marginStart="192dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintGuide_begin="192dp"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </android.support.constraint.ConstraintLayout>
+
+
