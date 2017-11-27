@@ -8,16 +8,16 @@
     tools:context="emily.ackland.student.curtin.edu.au.audioplayer.MainActivity"
     tools:targetApi="JELLY_BEAN">
 
-    <ListView
+<!--    <ListView
         android:id="@+id/tracklist"
-        android:layout_width="match_parent"
+        android:layout_width=""
         android:layout_height="wrap_content"
         android:clickable="true"
+        android:focusable="true"
+        android:onClick="playTrack"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"></ListView>
-
-    <LinearLayout
+        app:layout_constraintHorizontal_bias="0.5"/>-->
+    <android.support.constraint.ConstraintLayout
         android:id="@+id/mediabar"
         android:layout_width="match_parent"
         android:layout_height="@android:dimen/app_icon_size"
@@ -29,8 +29,10 @@
             android:id="@+id/prevbutton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="120dp"
+            app:layout_constraintEnd_toStartOf="@+id/playbutton"
             app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="parent"
             app:srcCompat="@drawable/ic_skip_previous_black_24dp" />
 
         <ImageButton
@@ -38,16 +40,22 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:baselineAligned="false"
+            app:layout_constraintEnd_toStartOf="@+id/skipbutton"
             app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/prevbutton"
+            app:layout_constraintTop_toTopOf="@+id/prevbutton"
             app:srcCompat="@drawable/ic_play_arrow_black_24dp" />
 
         <ImageButton
             android:id="@+id/skipbutton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/playbutton"
+            app:layout_constraintTop_toTopOf="@+id/playbutton"
             app:srcCompat="@drawable/ic_skip_next_black_24dp" />
-    </LinearLayout>
+    </android.support.constraint.ConstraintLayout>
 
     <android.support.constraint.Guideline
         android:id="@+id/guideline5"
