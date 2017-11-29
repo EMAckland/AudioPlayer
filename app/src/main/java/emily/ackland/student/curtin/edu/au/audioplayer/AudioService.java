@@ -32,7 +32,6 @@ public class AudioService extends Service implements MediaPlayer.OnPreparedListe
         player = new MediaPlayer();
         initAudioPlayer();
     }
-
     public void initAudioPlayer() {
         player.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
         player.setAudioStreamType(AudioManager.STREAM_MUSIC);

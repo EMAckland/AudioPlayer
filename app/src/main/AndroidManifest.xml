@@ -22,8 +22,6 @@
             </intent-filter>
         </activity>
         <service android:name="emily.ackland.student.curtin.edu.au.audioplayer.AudioService" />
-<!--        <activity android:name=".AudioTracksActivity" />
-        <activity android:name=".AudioPlayerActivity"></activity>-->
     </application>
 
 </manifest>

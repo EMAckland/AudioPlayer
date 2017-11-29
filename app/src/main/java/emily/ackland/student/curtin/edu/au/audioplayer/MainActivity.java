@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity implements MediaController.MediaPlayerControl {
     private ListView tracksView;
@@ -34,6 +36,8 @@ public class MainActivity extends AppCompatActivity implements MediaController.M
     private boolean audioBound=false;
     private boolean paused=false, playbackPaused=false;
     private AudioAdapter viewAdpt;
+    private Timer _t, timer;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +47,13 @@ public class MainActivity extends AppCompatActivity implements MediaController.M
         tracksView = new ListView(this);
         tracksView.setLayoutParams(new LinearLayout.LayoutParams(-1,-2));
         addContentView(tracksView,new LinearLayout.LayoutParams(-1,-2));
+        _t = new Timer();
+        _t.scheduleAtFixedRate( new TimerTask() {
+            @Override
+            public void run() {
+                getCurrentPosition();
+            }
+        }, 1000, 1000 );
         ActivityCompat.requestPermissions(this, new
                 String[]{"android.permission.READ_EXTERNAL_STORAGE"}, 1);
         ActivityCompat.requestPermissions(this, new
@@ -58,9 +69,11 @@ public class MainActivity extends AppCompatActivity implements MediaController.M
         tracksView.setAdapter(viewAdpt);
         setController();
     }
-    //connect to the service
+    @Override
+    public boolean canPause() {
+        return true;
+    }
     private ServiceConnection audioConnection = new ServiceConnection(){
-
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             AudioService.AudioBinder binder = (AudioService.AudioBinder)service;
@@ -158,17 +171,6 @@ public class MainActivity extends AppCompatActivity implements MediaController.M
         }
         musicContr.show(0);
     }
-/*    private void generateListView() {
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
-                this, android.R.layout.simple_list_item_1, audioStrList);
-        tracksView.setAdapter(arrayAdapter);
-        tracksView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-               trackPicked(parent, view, position, id);
-            }
-        });
-    }*/
 
     public void setController(){
         musicContr = new MusicController(this);
@@ -187,20 +189,7 @@ public class MainActivity extends AppCompatActivity implements MediaController.M
         musicContr.setAnchorView(tracksView);
         musicContr.setEnabled(true);
     }
-/*    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_shuffle:
-                //shuffle
-                break;
-            case R.id.action_end:
-                stopService(playIntent);
-                audioSrv=null;
-                System.exit(0);
-                break;
-        }
-        return super.onOptionsItemSelected(item);
-    }*/
+
     @Override
     protected void onDestroy() {
         stopService(playIntent);
@@ -245,11 +234,6 @@ public class MainActivity extends AppCompatActivity implements MediaController.M
     @Override
     public int getBufferPercentage() {
         return 0;
-    }
-
-    @Override
-    public boolean canPause() {
-        return true;
     }
 
     @Override
