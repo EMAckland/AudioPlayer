@@ -13,6 +13,7 @@ import android.os.IBinder;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.MediaController;
@@ -33,6 +34,7 @@ public class MainActivity extends AppCompatActivity implements MediaController.M
     private AudioAdapter viewAdpt;
     private SeekBar seekBar;
     private Handler seekHandler = new Handler();
+    private ImageButton skip_next, skip_prev, play_pause, pause_play;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,22 +86,34 @@ public class MainActivity extends AppCompatActivity implements MediaController.M
     }
 
     public void setController(){
-        musicContr = new MusicController(this);
-        musicContr.setPrevNextListeners(new View.OnClickListener() {
+        play_pause = findViewById(R.id.play_pause);
+        pause_play = findViewById(R.id.pause_play);
+        skip_next = findViewById(R.id.skip_next);
+        skip_prev = findViewById(R.id.skip_prev);
+        play_pause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                playNext();
-            }
-        }, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                playPrev();
+                audioSrv.playAudio();
             }
         });
-        musicContr.setMediaPlayer(this);
-        musicContr.setAnchorView(tracksView);
-        musicContr.setEnabled(true);
-
+        pause_play.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                audioSrv.pausePlayer();
+            }
+        });
+        skip_prev.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                audioSrv.playPrev();
+            }
+        });
+        skip_next.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                audioSrv.playNext();
+            }
+        });
     }
     private void playNext(){
         audioSrv.playNext();
