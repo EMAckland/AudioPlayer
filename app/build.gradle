@@ -4,7 +4,7 @@ android {
     compileSdkVersion 26
     defaultConfig {
         applicationId "emily.ackland.student.curtin.edu.au.audioplayer"
-        minSdkVersion 16
+        minSdkVersion 17
         targetSdkVersion 26
         versionCode 2
         versionName "1.0"

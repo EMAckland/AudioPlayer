@@ -11,6 +11,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 /**
+ * Adapter for creating list view out of ArrayList<AudioFile> elements
  * Created by Emily on 11/29/2017.
  */
 

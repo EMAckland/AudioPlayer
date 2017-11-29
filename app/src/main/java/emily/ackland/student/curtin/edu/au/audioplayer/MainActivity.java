@@ -8,6 +8,7 @@ import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -15,27 +16,23 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.MediaController;
+import android.widget.SeekBar;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity implements MediaController.MediaPlayerControl {
     private ListView tracksView;
-    private List<String> audioStrList = new ArrayList<>();
     private ArrayList<AudioFile> tracksList = new ArrayList<>();
-
     private MusicController musicContr;
     private AudioService audioSrv;
     private Intent playIntent;
     private boolean audioBound=false;
     private boolean paused=false, playbackPaused=false;
     private AudioAdapter viewAdpt;
-    private Timer _t;
-
+    private SeekBar seekBar;
+    private Handler seekHandler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,13 +42,6 @@ public class MainActivity extends AppCompatActivity implements MediaController.M
         tracksView = new ListView(this);
         tracksView.setLayoutParams(new LinearLayout.LayoutParams(-1,-2));
         addContentView(tracksView,new LinearLayout.LayoutParams(-1,-2));
-        _t = new Timer();
-        _t.scheduleAtFixedRate( new TimerTask() {
-            @Override
-            public void run() {
-                getCurrentPosition();
-            }
-        }, 1000, 1000 );
         ActivityCompat.requestPermissions(this, new
                 String[]{"android.permission.READ_EXTERNAL_STORAGE"}, 1);
         ActivityCompat.requestPermissions(this, new
@@ -59,6 +49,7 @@ public class MainActivity extends AppCompatActivity implements MediaController.M
         ActivityCompat.requestPermissions(this, new
                 String[]{"android.permission.WAKE_LOCK"}, 0);
         getAudioFiles();
+        //sort by track title
         Collections.sort(tracksList, new Comparator<AudioFile>(){
             public int compare(AudioFile a, AudioFile b){
                 return a.getTitle().compareTo(b.getTitle());
@@ -85,13 +76,13 @@ public class MainActivity extends AppCompatActivity implements MediaController.M
                 long thisId = audioCursor.getLong(idColumn);
                 String thisTitle = audioCursor.getString(titleColumn);
                 String thisArtist = audioCursor.getString(artistColumn);
-                audioStrList.add((thisId+ ": "+thisArtist + "\n" + thisTitle).trim());
                 AudioFile track = new AudioFile(thisId ,thisTitle, thisArtist);
                 tracksList.add(track);
             }
             while (audioCursor.moveToNext());
         }
     }
+
     public void setController(){
         musicContr = new MusicController(this);
         musicContr.setPrevNextListeners(new View.OnClickListener() {
@@ -108,6 +99,7 @@ public class MainActivity extends AppCompatActivity implements MediaController.M
         musicContr.setMediaPlayer(this);
         musicContr.setAnchorView(tracksView);
         musicContr.setEnabled(true);
+
     }
     private void playNext(){
         audioSrv.playNext();
@@ -127,7 +119,8 @@ public class MainActivity extends AppCompatActivity implements MediaController.M
         musicContr.show(0);
     }
     public void trackPicked(View view){
-
+        Intent intent = new Intent(this, NowPlayingActivity.class);
+        startActivity(intent);
         audioSrv.setTrack(Integer.parseInt(view.getTag().toString()));
         audioSrv.playAudio();
         if(playbackPaused){
@@ -186,7 +179,6 @@ public class MainActivity extends AppCompatActivity implements MediaController.M
         audioSrv=null;
         super.onDestroy();
     }
-
     @Override
     public void pause() {
         playbackPaused = true;
@@ -209,15 +201,15 @@ public class MainActivity extends AppCompatActivity implements MediaController.M
     @Override
     public boolean canPause() {return true;}
     @Override
-    public void seekTo(int pos) {audioSrv.seek(pos);}
-    @Override
     public boolean isPlaying() {return false;}
     @Override
     public int getBufferPercentage() {return 0;}
     @Override
-    public boolean canSeekBackward() {return true;}
+    public boolean canSeekBackward() {return false;}
     @Override
-    public boolean canSeekForward() {return true;}
+    public boolean canSeekForward() {return false;}
+    @Override
+    public void seekTo(int pos) {audioSrv.seek(pos);}
     @Override
     public int getAudioSessionId() {return 0;}
 

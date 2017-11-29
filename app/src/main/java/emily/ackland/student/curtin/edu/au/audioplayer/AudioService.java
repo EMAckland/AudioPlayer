@@ -65,7 +65,8 @@ public class AudioService extends Service implements MediaPlayer.OnPreparedListe
     public void pausePlayer(){player.pause();}
     public void seek(int posn){player.seekTo(posn);}
     public void go() {player.start();}
-
+    public void updateSeek(){
+    }
     public void playNext(){
         trackPosn++;
         if(trackPosn >= tracks.size())
