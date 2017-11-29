@@ -5,7 +5,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -28,15 +27,14 @@ public class MainActivity extends AppCompatActivity implements MediaController.M
     private ListView tracksView;
     private List<String> audioStrList = new ArrayList<>();
     private ArrayList<AudioFile> tracksList = new ArrayList<>();
-    private Resources r;
-    int pxHeight;
+
     private MusicController musicContr;
     private AudioService audioSrv;
     private Intent playIntent;
     private boolean audioBound=false;
     private boolean paused=false, playbackPaused=false;
     private AudioAdapter viewAdpt;
-    private Timer _t, timer;
+    private Timer _t;
 
 
     @Override
@@ -69,9 +67,74 @@ public class MainActivity extends AppCompatActivity implements MediaController.M
         tracksView.setAdapter(viewAdpt);
         setController();
     }
-    @Override
-    public boolean canPause() {
-        return true;
+    private void getAudioFiles() {
+        ContentResolver audioResolver = getContentResolver();
+        Uri audioUri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        Cursor audioCursor = audioResolver.query(audioUri, null, null,
+                null, null);
+        if (audioCursor != null && audioCursor.moveToFirst()) {
+            //get columns
+            int titleColumn = audioCursor.getColumnIndex
+                    (android.provider.MediaStore.Audio.Media.TITLE);
+            int idColumn = audioCursor.getColumnIndex
+                    (android.provider.MediaStore.Audio.Media._ID);
+            int artistColumn = audioCursor.getColumnIndex
+                    (android.provider.MediaStore.Audio.Media.ARTIST);
+            //add songs to list
+            do {
+                long thisId = audioCursor.getLong(idColumn);
+                String thisTitle = audioCursor.getString(titleColumn);
+                String thisArtist = audioCursor.getString(artistColumn);
+                audioStrList.add((thisId+ ": "+thisArtist + "\n" + thisTitle).trim());
+                AudioFile track = new AudioFile(thisId ,thisTitle, thisArtist);
+                tracksList.add(track);
+            }
+            while (audioCursor.moveToNext());
+        }
+    }
+    public void setController(){
+        musicContr = new MusicController(this);
+        musicContr.setPrevNextListeners(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playNext();
+            }
+        }, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playPrev();
+            }
+        });
+        musicContr.setMediaPlayer(this);
+        musicContr.setAnchorView(tracksView);
+        musicContr.setEnabled(true);
+    }
+    private void playNext(){
+        audioSrv.playNext();
+        if(playbackPaused){
+            setController();
+            playbackPaused=false;
+        }
+        musicContr.show(0);
+    }
+
+    private void playPrev(){
+        audioSrv.playPrev();
+        if(playbackPaused){
+            setController();
+            playbackPaused=false;
+        }
+        musicContr.show(0);
+    }
+    public void trackPicked(View view){
+
+        audioSrv.setTrack(Integer.parseInt(view.getTag().toString()));
+        audioSrv.playAudio();
+        if(playbackPaused){
+            setController();
+            playbackPaused=false;
+        }
+        musicContr.show(0);
     }
     private ServiceConnection audioConnection = new ServiceConnection(){
         @Override
@@ -116,79 +179,6 @@ public class MainActivity extends AppCompatActivity implements MediaController.M
         musicContr.hide();
         super.onStop();
     }
-    public void trackPicked(View view){
-
-        audioSrv.setTrack(Integer.parseInt(view.getTag().toString()));
-        audioSrv.playAudio();
-        if(playbackPaused){
-            setController();
-            playbackPaused=false;
-        }
-        musicContr.show(0);
-    }
-
-    private void getAudioFiles() {
-        ContentResolver audioResolver = getContentResolver();
-        Uri audioUri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        Cursor audioCursor = audioResolver.query(audioUri, null, null,
-                null, null);
-        if (audioCursor != null && audioCursor.moveToFirst()) {
-            //get columns
-            int titleColumn = audioCursor.getColumnIndex
-                    (android.provider.MediaStore.Audio.Media.TITLE);
-            int idColumn = audioCursor.getColumnIndex
-                    (android.provider.MediaStore.Audio.Media._ID);
-            int artistColumn = audioCursor.getColumnIndex
-                    (android.provider.MediaStore.Audio.Media.ARTIST);
-            //add songs to list
-            do {
-                long thisId = audioCursor.getLong(idColumn);
-                String thisTitle = audioCursor.getString(titleColumn);
-                String thisArtist = audioCursor.getString(artistColumn);
-                audioStrList.add((thisId+ ": "+thisArtist + "\n" + thisTitle).trim());
-                AudioFile track = new AudioFile(thisId ,thisTitle, thisArtist);
-                tracksList.add(track);
-            }
-            while (audioCursor.moveToNext());
-        }
-    }
-    //play next
-    private void playNext(){
-        audioSrv.playNext();
-        if(playbackPaused){
-            setController();
-            playbackPaused=false;
-        }
-        musicContr.show(0);
-    }
-
-    //play previous
-    private void playPrev(){
-        audioSrv.playPrev();
-        if(playbackPaused){
-            setController();
-            playbackPaused=false;
-        }
-        musicContr.show(0);
-    }
-
-    public void setController(){
-        musicContr = new MusicController(this);
-        musicContr.setPrevNextListeners(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                playNext();
-            }
-        }, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                playPrev();
-            }
-        });
-        musicContr.setMediaPlayer(this);
-        musicContr.setAnchorView(tracksView);
-        musicContr.setEnabled(true);
-    }
 
     @Override
     protected void onDestroy() {
@@ -196,59 +186,39 @@ public class MainActivity extends AppCompatActivity implements MediaController.M
         audioSrv=null;
         super.onDestroy();
     }
-    @Override
-    public void start() {
-        audioSrv.go();
-    }
 
     @Override
     public void pause() {
         playbackPaused = true;
         audioSrv.pausePlayer();
     }
-
     @Override
     public int getDuration() {
         if(audioSrv!=null && audioBound && audioSrv.isPlaying())
             return audioSrv.getDur();
         else return 0;
     }
-
     @Override
     public int getCurrentPosition() {
         if(audioSrv!=null && audioBound && audioSrv.isPlaying())
             return audioSrv.getPosn();
         else return 0;
     }
-
     @Override
-    public void seekTo(int pos) {
-        audioSrv.seek(pos);
-    }
-
+    public void start() {audioSrv.go();}
     @Override
-    public boolean isPlaying() {
-        return false;
-    }
-
+    public boolean canPause() {return true;}
     @Override
-    public int getBufferPercentage() {
-        return 0;
-    }
-
+    public void seekTo(int pos) {audioSrv.seek(pos);}
     @Override
-    public boolean canSeekBackward() {
-        return true;
-    }
-
+    public boolean isPlaying() {return false;}
     @Override
-    public boolean canSeekForward() {
-        return true;
-    }
-
+    public int getBufferPercentage() {return 0;}
     @Override
-    public int getAudioSessionId() {
-        return 0;
-    }
+    public boolean canSeekBackward() {return true;}
+    @Override
+    public boolean canSeekForward() {return true;}
+    @Override
+    public int getAudioSessionId() {return 0;}
 
 }
