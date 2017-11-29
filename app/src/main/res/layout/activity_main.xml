@@ -60,18 +60,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout3">
 
-        <TextClock
+        <TextView
             android:id="@+id/current_position"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="start" />
-        <TextClock
+            android:layout_height="wrap_content" />
+        <TextView
             android:id="@+id/track_duration"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="end "
             android:textAlignment="viewEnd" />
     </LinearLayout>
+
     <SeekBar
         android:id="@+id/seek_bar"
         android:layout_width="match_parent"

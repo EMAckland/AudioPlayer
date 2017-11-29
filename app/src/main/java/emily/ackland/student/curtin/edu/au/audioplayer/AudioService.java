@@ -13,6 +13,7 @@ import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -32,6 +33,10 @@ public class AudioService extends Service implements MediaPlayer.OnPreparedListe
         player = new MediaPlayer();
         initAudioPlayer();
     }
+
+    public void setTracks(List<AudioFile> inTracks) {tracks = inTracks;}
+    public void setTrack(int trackIdx) {trackPosn = trackIdx;}
+
     public void initAudioPlayer() {
         player.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
         player.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -39,12 +44,14 @@ public class AudioService extends Service implements MediaPlayer.OnPreparedListe
         player.setOnCompletionListener(this);
         player.setOnErrorListener(this);
     }
-    public void setTracks(List<AudioFile> inTracks) {tracks = inTracks;}
-    public void setTrack(int trackIdx) {trackPosn = trackIdx;}
+
     public class AudioBinder extends Binder {
         AudioService getService() {
             return AudioService.this;
         }
+    }
+    public AudioFile getCurrentTrack(){
+        return tracks.get(trackPosn);
     }
     public void playAudio() {
         player.reset();
@@ -56,17 +63,20 @@ public class AudioService extends Service implements MediaPlayer.OnPreparedListe
         } catch (Exception e) {
             Log.e("MUSIC SERVICE", "Error setting data source", e);
         }
-        player.prepareAsync();
+        try{
+            player.prepare();
+        }catch (IOException e){
+            player.prepareAsync();
+        }
     }
 
-    public int getPosn(){return player.getCurrentPosition();}
-    public int getDur(){return player.getDuration();}
+    public int getPositon(){return player.getCurrentPosition();}
+    public int getDuration(){return player.getDuration();}
     public boolean isPlaying(){return player.isPlaying();}
     public void pausePlayer(){player.pause();}
     public void seek(int posn){player.seekTo(posn);}
     public void go() {player.start();}
-    public void updateSeek(){
-    }
+
     public void playNext(){
         trackPosn++;
         if(trackPosn >= tracks.size())
