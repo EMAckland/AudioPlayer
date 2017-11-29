@@ -16,7 +16,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.MediaController;
 import android.widget.SeekBar;
@@ -45,9 +44,7 @@ public class MainActivity extends AppCompatActivity implements MediaController.M
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         viewAdpt = new AudioAdapter(this, tracksList);
-        tracksView = new ListView(this);
-        tracksView.setLayoutParams(new LinearLayout.LayoutParams(-1,-2));
-        addContentView(tracksView,new LinearLayout.LayoutParams(-1,-2));
+        tracksView = findViewById(R.id.tracks_list);
         ActivityCompat.requestPermissions(this, new
                 String[]{"android.permission.READ_EXTERNAL_STORAGE"}, 1);
         ActivityCompat.requestPermissions(this, new
@@ -115,7 +112,6 @@ public class MainActivity extends AppCompatActivity implements MediaController.M
             startService(playIntent);
         }
         setController();
-
     }
     public void setController(){
         play_pause = findViewById(R.id.play_pause);
@@ -126,10 +122,30 @@ public class MainActivity extends AppCompatActivity implements MediaController.M
         curr = findViewById(R.id.current_position);
         seekBar = findViewById(R.id.seek_bar);
         seekBar.setEnabled(true);
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if(fromUser) {
+                    seekTo(progress);
+                    updateSeek();
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                seekHandler.removeCallbacks(run);
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                seekHandler.postDelayed(run, 1000);
+            }
+        });
         play_pause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                audioSrv.playAudio();
+                audioSrv.play();
+                updateSeek();
             }
         });
         pause_play.setOnClickListener(new View.OnClickListener() {
@@ -143,23 +159,40 @@ public class MainActivity extends AppCompatActivity implements MediaController.M
             public void onClick(View v) {
                 audioSrv.playPrev();
                 updateView();
+                updateSeek();
             }
         });
         skip_next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 audioSrv.playNext();
+                updateSeek();
                 updateView();
             }
         });
     }
     Runnable run = new Runnable() {
-
+        boolean stopped = true;
         @Override
         public void run() {
-            updateSeek();
+            setStopped(false);
+            if(!paused && audioSrv.isPlaying()){
+                updateSeek();
+            }else {
+                seekHandler.removeCallbacks(run);
+            }
+        }
+        public void setStopped(boolean inStopped){
+            stopped = inStopped;
+        }
+        public boolean isStopped(){
+            return stopped;
+        }
+        public void stop(){
+            setStopped(true);
         }
     };
+
     private void updateSeek(){
         seekBar.setProgress(getCurrentPosition());
         curr.setText(timeStrToSeconds_MM_SS(getCurrentPosition()));
@@ -173,17 +206,13 @@ public class MainActivity extends AppCompatActivity implements MediaController.M
     private void playNext(){
         audioSrv.playNext();
         if(playbackPaused){
-            setController();
             playbackPaused=false;
         }
     }
-    private void updateTime(){
 
-    }
     private void playPrev(){
         audioSrv.playPrev();
         if(playbackPaused){
-            setController();
             playbackPaused=false;
         }
     }
@@ -200,13 +229,14 @@ public class MainActivity extends AppCompatActivity implements MediaController.M
     @Override
     protected void onPause(){
         super.onPause();
+        seekHandler.removeCallbacks(run);
         paused=true;
     }
     @Override
     protected void onResume(){
         super.onResume();
         if(paused){
-            setController();
+            updateSeek();
             paused=false;
         }
     }
@@ -219,6 +249,7 @@ public class MainActivity extends AppCompatActivity implements MediaController.M
     protected void onDestroy() {
         stopService(playIntent);
         audioSrv=null;
+        seekHandler.removeCallbacks(run);
         super.onDestroy();
     }
     @Override

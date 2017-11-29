@@ -26,6 +26,7 @@ public class AudioService extends Service implements MediaPlayer.OnPreparedListe
     private List<AudioFile> tracks;
     private int trackPosn;
     private final IBinder audioBind = new AudioBinder();
+    private int pausePos=0;
 
     public void onCreate() {
         super.onCreate();
@@ -33,7 +34,12 @@ public class AudioService extends Service implements MediaPlayer.OnPreparedListe
         player = new MediaPlayer();
         initAudioPlayer();
     }
-
+    public void play(){
+        if(!player.isPlaying()) {
+            player.seekTo(pausePos);
+            player.start();
+        }
+    }
     public void setTracks(List<AudioFile> inTracks) {tracks = inTracks;}
     public void setTrack(int trackIdx) {trackPosn = trackIdx;}
 
@@ -73,7 +79,10 @@ public class AudioService extends Service implements MediaPlayer.OnPreparedListe
     public int getPositon(){return player.getCurrentPosition();}
     public int getDuration(){return player.getDuration();}
     public boolean isPlaying(){return player.isPlaying();}
-    public void pausePlayer(){player.pause();}
+    public void pausePlayer(){
+        pausePos = player.getCurrentPosition();
+        player.pause();
+    }
     public void seek(int posn){player.seekTo(posn);}
     public void go() {player.start();}
 
