@@ -1,12 +1,10 @@
 package emily.ackland.student.curtin.edu.au.audioplayer;
 
 import android.content.ComponentName;
-import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -14,12 +12,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
-import android.provider.MediaStore;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.AbsListView;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.MediaController;
@@ -28,8 +24,7 @@ import android.widget.TextView;
 
 import java.io.FileDescriptor;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements MediaController.MediaPlayerControl {
     private ListView tracksView;
@@ -55,58 +50,32 @@ public class MainActivity extends AppCompatActivity implements MediaController.M
                 String[]{"android.permission.MEDIA_CONTROL"}, 0);
         ActivityCompat.requestPermissions(this, new
                 String[]{"android.permission.WAKE_LOCK"}, 0);
-        getAudioFiles();
-        ImageButton album = new ImageButton(this);
-        album.setLayoutParams(new AbsListView.LayoutParams(50,50));
-        album.setImageBitmap(tracksList.get(0).getAlbumArt());
-
+        boolean next = true;
+        int bundleID=0;
+        List<Bundle> bundles = new ArrayList<>();
+        while (next){
+            if(getIntent().getBundleExtra("ALBUM"+bundleID)!=null){
+                bundles.add(getIntent().getBundleExtra("ALBUM"+bundleID));
+                bundleID++;
+            }else
+                next=false;
+        }
+        getAudioFiles(bundles);
         viewAdpt = new AudioAdapter(this, tracksList);
         tracksView = findViewById(R.id.tracks_list);
-        //sort by track title
-        Collections.sort(tracksList, new Comparator<AudioFile>() {
-            public int compare(AudioFile a, AudioFile b) {
-                return a.getTitle().compareTo(b.getTitle());
-            }
-        });
-
         tracksView.setAdapter(viewAdpt);
     }
 
-    private void getAudioFiles() {
-        ContentResolver audioResolver = getContentResolver();
-        ContentResolver albumResolver = getContentResolver();
-        Uri audioUri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        Uri albumUri = android.provider.MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI;
-        Cursor albumCursor = albumResolver.query(albumUri, null, null,
-                null, null);
-        Cursor audioCursor = audioResolver.query(audioUri, null, null,
-                null, null);
-        if (audioCursor != null && audioCursor.moveToFirst() && albumCursor.moveToFirst()) {
-            //get columns
-            int titleColumn = audioCursor.getColumnIndex
-                    (android.provider.MediaStore.Audio.Media.TITLE);
-            int idColumn = audioCursor.getColumnIndex
-                    (android.provider.MediaStore.Audio.Media._ID);
-            int artistColumn = audioCursor.getColumnIndex
-                    (android.provider.MediaStore.Audio.Media.ARTIST);
-            int durColumn = audioCursor.getColumnIndex(MediaStore.Audio.Media.DURATION);
-            int albumColumn = audioCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM);
-            int albumArt = albumCursor.getColumnIndex(MediaStore.Audio.Albums.ALBUM_ART);
-
-            //add songs to list
-            do {
-                long thisId = audioCursor.getLong(idColumn);
-                String thisTitle = audioCursor.getString(titleColumn);
-                String thisArtist = audioCursor.getString(artistColumn);
-                String thisDuration = audioCursor.getString(durColumn);
-                String albumPath = albumCursor.getString(albumArt);
-                Bitmap albumBMP = BitmapFactory.decodeFile(albumPath);
-                String album = audioCursor.getString(albumColumn);
-                AudioFile track = new AudioFile(thisId, thisTitle, thisArtist, thisDuration,
-                        album, albumBMP);
-                tracksList.add(track);
-            }
-            while (audioCursor.moveToNext());
+    private void getAudioFiles(List<Bundle> bundles) {
+        for (Bundle b : bundles){
+            AudioFile track = new AudioFile(
+                    b.getLong("ID"),
+            b.getString("TITLE"),
+            b.getString("ARTIST"),
+            b.getString("DURATION"),
+                    b.getString("ALBUM"),
+            null);
+            tracksList.add(track);
         }
     }
 

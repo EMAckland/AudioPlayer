@@ -108,11 +108,6 @@
         app:layout_constraintBottom_toTopOf="@+id/linearLayout5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
-        <ImageButton
-            android:id="@+id/album"
-            android:layout_width="100dp"
-            android:layout_height="100dp" />
-
 
 </android.support.constraint.ConstraintLayout>
 
