@@ -1,11 +1,11 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 26
+    compileSdkVersion 27
     defaultConfig {
         applicationId "emily.ackland.student.curtin.edu.au.audioplayer"
-        minSdkVersion 17
-        targetSdkVersion 26
+        minSdkVersion 21
+        targetSdkVersion 27
         versionCode 5
         versionName "3.1"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
