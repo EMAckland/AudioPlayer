@@ -292,10 +292,10 @@ public class MainActivity extends AppCompatActivity implements MediaController.M
             int minutes = seconds / 60;
             seconds = seconds % 60;
             if (seconds < 10) {
-                    formattedTime = String.valueOf(minutes) + ":0" + String.valueOf(seconds);
+                    formattedTime = " " +String.valueOf(minutes) + ":0" + String.valueOf(seconds)+" ";
                 Log.d("formattedTime", formattedTime);
             } else {
-                formattedTime = String.valueOf(minutes) + ":" + String.valueOf(seconds);
+                formattedTime = " "+String.valueOf(minutes) + ":" + String.valueOf(seconds)+ " ";
                 Log.d("formattedTime", formattedTime);
             }
         } catch (NumberFormatException e) {
