@@ -25,10 +25,10 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by Emily on 11/30/2017.
@@ -37,8 +37,7 @@ import java.util.Map;
 public class AlbumsActivity extends AppCompatActivity {
     private TableLayout albumsView;
     private List<String> artists = new ArrayList<>();
-    private Map<String, AudioFile> albumTracks = new HashMap<>();
-    private Map<String, AudioFile> artistAlbums = new HashMap<>();
+    private Set<String> albumSet = new HashSet<>();
     private ArrayList<AudioFile> tracksList = new ArrayList<>();
     private List<String> albums = new ArrayList<>();
     private List<Album> albumList = new ArrayList<>();
@@ -63,6 +62,10 @@ public class AlbumsActivity extends AppCompatActivity {
         TableRow row = new TableRow(this);
         row.setLayoutParams(rowParams);
         int rowIdx = 0;
+        for (Album a : albumList){
+            for(AudioFile t : a.getTracks()){
+            }
+        }
         for (Album a: albumList){
             ImageButton albumArt = new ImageButton(this);
             albumArt.setLayoutParams(new TableRow.LayoutParams(width,height));
@@ -106,39 +109,79 @@ public class AlbumsActivity extends AppCompatActivity {
         albumsView.addView(row);
     }
     private void matchArtistToAlbum(){
-        String artist = "<Unknown Artist>";
-        String albumDefaultTitle = "<Unknown Album>";
-        String albumActualTitle = "<Unknown Album>";
-        int numAlbums = 0;
-        boolean matchDone = false;
-        Bitmap albumArt;
-        for (AudioFile a : tracksList){
-            ArrayList<AudioFile> currAlbumTracks = new ArrayList<>();
-            for (AudioFile b : tracksList){
-                if(a.getAlbum().equals(b.getAlbum())){
+
+        Album tempAlbum = null;
+        for (String s : albumSet){
+            for (AudioFile t : tracksList){
+                if (s.trim().equals(t.getAlbum().trim())){
                     ArrayList<AudioFile> albumTracks = new ArrayList<>();
-                    for (AudioFile c : tracksList){
-                        if(c.getAlbum().equals(b.getAlbum())){
-                            albumTracks.add(c);
-                        }
-                    }
-                    currAlbumTracks = albumTracks;
+                    albumList.add(new Album(t.getArtist(), t.getAlbum(), t.getAlbumArt()));
                 }
             }
-            Log.v("ADDED ", a.getTitle());
-            albumList.add(new Album(a.getArtist(),a.getTitle(),
-                    currAlbumTracks,a.getAlbumArt()));
         }
+        int idx = 0;
+        ArrayList<String> added = new ArrayList<>();
+        Album album;
+        for (Album a : albumList){
+            print(a.getTitle());
+        }
+        for (String a : albumSet){
+            print(a);
+        }
+        for (String s : albumSet){
+            ArrayList<AudioFile> albumTracks = new ArrayList<>();
+            for (AudioFile t : tracksList){
+                if (s.equals(t.getAlbum())){
+                    albumTracks.add(t);
+                }
+            }
+            albumList.get(idx).setTracks(albumTracks);
+        }
+/*        for (AudioFile a : tracksList){
+            for (AudioFile b : tracksList){
+                if(a.getAlbum().equals(b.getAlbum())){
+                    albumSet.add(new Album(a.getArtist(),a.getTitle(), a.getAlbumArt()));
+                }
+            }
+        }
+        for (AudioFile t : tracksList){
+            for(Album a : albumSet) {
+                albumList.add(a);
+                if(a.getTitle().equals(t.getAlbum())){
+                    tempAlbum = a;
+                    albumTracks.add(t);
+                }
+            }
+            if (tempAlbum!=null)
+                tempAlbum.setTracks(albumTracks);
+            albumTracks = new ArrayList<>();
+        }*/
     }
     private void getAudioFiles() {
+        List<String> albums2 = new ArrayList<>();
         ContentResolver audioResolver = getContentResolver();
         ContentResolver albumResolver = getContentResolver();
+        ContentResolver mContentResolver = getContentResolver();
         Uri audioUri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
         Uri albumUri = android.provider.MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI;
         Cursor albumCursor = albumResolver.query(albumUri, null, null,
                 null, null);
         Cursor audioCursor = audioResolver.query(audioUri, null, null,
                 null, null);
+        String[] mProjection =
+                {
+                        MediaStore.Audio.Artists._ID,
+                        MediaStore.Audio.Artists.ARTIST,
+                        MediaStore.Audio.Artists.NUMBER_OF_TRACKS,
+                        MediaStore.Audio.Artists.NUMBER_OF_ALBUMS
+                };
+
+        Cursor artistCursor = mContentResolver.query(
+                MediaStore.Audio.Artists.EXTERNAL_CONTENT_URI,
+                mProjection,
+                null,
+                null,
+                MediaStore.Audio.Artists.ARTIST + " ASC");
         if (audioCursor != null && audioCursor.moveToFirst() && albumCursor.moveToFirst()) {
             //get columns
             int titleColumn = audioCursor.getColumnIndex
@@ -149,29 +192,79 @@ public class AlbumsActivity extends AppCompatActivity {
                     (android.provider.MediaStore.Audio.Media.ARTIST);
             int durColumn = audioCursor.getColumnIndex(MediaStore.Audio.Media.DURATION);
             int albumColumn = audioCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM);
+            int albCol = albumCursor.getColumnIndex(MediaStore.Audio.Albums.ALBUM);
             int albumArtCol = albumCursor.getColumnIndex(MediaStore.Audio.Albums.ALBUM_ART);
 
             //add songs to list
             do {
                 Bitmap albumBMP;
-                long thisId = audioCursor.getLong(idColumn);
-                String thisTitle = audioCursor.getString(titleColumn);
-                String thisArtist = audioCursor.getString(artistColumn);
-                String thisDuration = audioCursor.getString(durColumn);
-                long albumID = albumCursor.getLong(albumArtCol);
+                Long thisId = null;
+                String thisTitle = null ;
+                String thisArtist = null ;
+                String thisDuration = null;
+                String album = null;
+                thisId = audioCursor.getLong(idColumn);
+                String album2 = null;
+                try {
+                    thisTitle = audioCursor.getString(titleColumn);
+                    if(thisTitle==null)
+                        thisTitle = "<Unknown Title>";
+                }catch (Exception e){
+                    thisTitle = "<Unknown Title>";
+                }
+                try {
+                    thisArtist = audioCursor.getString(artistColumn);
+                    if(thisArtist==null)
+                        thisArtist = "<Unknown Artist>";
+                } catch (Exception e){
+                    thisArtist = "<Unknown Artist>";
+                }
+                thisDuration = audioCursor.getString(durColumn);
                 String albumPath = albumCursor.getString(albumArtCol);
-                if(albumPath!=null)
+                if (albumPath != null)
                     albumBMP = BitmapFactory.decodeFile(albumPath);
                 else {
-                    albumBMP = getBitmapFromDrawable(this,R.drawable.ic_wallpaper_black_24dp);
+                    albumBMP = getBitmapFromDrawable(this, R.drawable.ic_wallpaper_black_24dp);
                 }
-                String album = audioCursor.getString(albumColumn);
+                try {
+                    album = audioCursor.getString(albumColumn);
+                    if(album==null){
+                        album = "<Unknown Album>";
+                    }
+                }catch (Exception e){
+                    album = "<Unknown Album>";
+                }
+                try {
+                    album2 = audioCursor.getString(albCol);
+                    if(album2==null){
+                        album2 = "<Unknown Album>";
+                    }
+                }catch (Exception e){
+                    album2 = "<Unknown Album>";
+                }
+                albums2.add(album2);
+                albumSet.add(album);
+                albums.add(album);
                 artists.add(thisArtist);
                 AudioFile track = new AudioFile(thisId, thisTitle, thisArtist, thisDuration,
                         album, albumBMP);
                 tracksList.add(track);
             }
             while (audioCursor.moveToNext() && albumCursor.moveToNext());
+        }
+        print("ALBUMSET");
+        for (String s : albumSet)
+            print(s);
+        print("ALBUMLIST");
+        for (String s : albums)
+            print(s);
+        print("ALBUMLIST2");
+        for (String s : albums2)
+            print(s);
+        print("TRACKS");
+        for (AudioFile a : tracksList){
+            print(a.getTitle()+a.getArtist()+a.getAlbum());
+
         }
     }
     public static Bitmap getBitmapFromDrawable(Context context, @DrawableRes int drawableId) {
@@ -189,5 +282,8 @@ public class AlbumsActivity extends AppCompatActivity {
         } else {
             throw new IllegalArgumentException("unsupported drawable type");
         }
+    }
+    public static void print(String msg){
+        Log.v("DEBUG", msg);
     }
 }

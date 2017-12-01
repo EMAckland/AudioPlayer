@@ -6,8 +6,8 @@ android {
         applicationId "emily.ackland.student.curtin.edu.au.audioplayer"
         minSdkVersion 21
         targetSdkVersion 27
-        versionCode 5
-        versionName "3.1"
+        versionCode 6
+        versionName "3.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
 
