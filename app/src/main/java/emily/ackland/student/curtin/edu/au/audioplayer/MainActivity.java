@@ -61,6 +61,7 @@ public class MainActivity extends AppCompatActivity implements MediaController.M
                 next=false;
         }
         getAudioFiles(bundles);
+        setTitle(tracksList.get(0).getTitle());
         viewAdpt = new AudioAdapter(this, tracksList);
         tracksView = findViewById(R.id.tracks_list);
         tracksView.setAdapter(viewAdpt);
