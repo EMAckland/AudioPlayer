@@ -2,27 +2,17 @@ package emily.ackland.student.curtin.edu.au.audioplayer;
 
 import android.Manifest;
 import android.content.ContentResolver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.VectorDrawable;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
-import android.support.graphics.drawable.VectorDrawableCompat;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -43,26 +33,21 @@ public class AlbumsActivity extends AppCompatActivity {
 	private TableLayout albumsView;
 	private Set<Album> albumSet = new HashSet<>();
 	private ArrayList<AudioFile> tracksList = new ArrayList<>();
-	private List<String> albums = new ArrayList<>();
 	private List<Album> albumList = new ArrayList<>();
 	private Map<String,Bitmap> albumMap = new HashMap<>();
 	private Map<String, ArrayList<AudioFile>> mapAlbumToTracks = new HashMap<>();
-	private List<String> artists = new ArrayList<>();
-	private final int REQUEST_CODE_STORAGE_READ = 1;
 	private String[] permissions = new String[]{
 					Manifest.permission.READ_EXTERNAL_STORAGE,
 					Manifest.permission.WRITE_EXTERNAL_STORAGE,
 					Manifest.permission.WAKE_LOCK,
 					Manifest.permission.MEDIA_CONTENT_CONTROL
 	};
-
-	private int[] permissionCodes = new int[]{1, 2, 3};
-
-	@Override
+	private Button viewAllButton;
+@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_albums);
-		if(havePermissions()){
+		if(MyUtils.havePermissions(AlbumsActivity.this, this, permissions)){
 			albumsView = findViewById(R.id.albums_table);
 			getAudioFiles();
 			generateAlbumView();
@@ -71,10 +56,22 @@ public class AlbumsActivity extends AppCompatActivity {
 	private void generateAlbumView() {
 		int height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 120, getResources().getDisplayMetrics());
 		int width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 120, getResources().getDisplayMetrics());
-		TableLayout.LayoutParams tableParams = new TableLayout.LayoutParams
-						(TableLayout.LayoutParams.WRAP_CONTENT, TableLayout.LayoutParams.WRAP_CONTENT);
+
 		TableRow.LayoutParams rowParams = new TableRow.LayoutParams
 						(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT);
+		viewAllButton = new Button(this);
+		viewAllButton.setText("View All");
+		viewAllButton.setLayoutParams(rowParams);
+		viewAllButton.setTag(tracksList);
+		viewAllButton.setOnClickListener(new View.OnClickListener() {
+@Override
+			public void onClick(View view) {
+				ArrayList<AudioFile> tracks = (ArrayList<AudioFile>)view.getTag();
+				Intent intent = new Intent(getBaseContext(), MainActivity.class);
+				bundleTracks(tracks,intent,"VIEW ALL");
+				startActivity(intent);
+			}
+		});
 		Iterator<Album> iterator = albumList.iterator();
 		TableRow row = new TableRow(this);
 		row.setLayoutParams(rowParams);
@@ -87,26 +84,11 @@ public class AlbumsActivity extends AppCompatActivity {
 			albumArt.setAdjustViewBounds(true);
 			albumArt.setTag(a);
 			albumArt.setOnClickListener(new View.OnClickListener() {
-				@Override
+@Override
 				public void onClick(View view) {
-					Album album = (Album) view.getTag();
-					List<Bundle> bundles = new ArrayList<>();
-					for (AudioFile f : album.getTracks()) {
-						Bundle b = new Bundle();
-						b.putString("ARTIST", f.getArtist());
-						b.putString("ALBUM", f.getAlbum());
-						b.putString("DURATION", f.getDuration());
-						b.putString("TITLE", f.getTitle());
-						b.putLong("ID", f.getID());
-						b.putByteArray("ALBUMART", f.getAlbumArt().getNinePatchChunk());
-						bundles.add(b);
-					}
+					ArrayList<AudioFile> tracks = ((Album)view.getTag()).getTracks();
 					Intent intent = new Intent(getBaseContext(), MainActivity.class);
-					int bundleID = 0;
-					for (Bundle b : bundles) {
-						intent.putExtra("ALBUM" + bundleID, b);
-						bundleID++;
-					}
+					bundleTracks(tracks,intent,"ALBUM");
 					startActivity(intent);
 				}
 			});
@@ -121,8 +103,11 @@ public class AlbumsActivity extends AppCompatActivity {
 			}
 		}
 		albumsView.addView(row);
+		row = new TableRow(this);
+		row.setLayoutParams(rowParams);
+		row.addView(viewAllButton);
+		albumsView.addView(row);
 	}
-
 	private void getAudioFiles() {
 		ContentResolver audioResolver = getContentResolver();
 		ContentResolver albumResolver = getContentResolver();
@@ -152,7 +137,7 @@ public class AlbumsActivity extends AppCompatActivity {
 				if (albumPath != null)
 					albumBMP = BitmapFactory.decodeFile(albumPath);
 				else {
-					albumBMP = getBitmapFromDrawable(this, R.drawable.ic_wallpaper_black_24dp);
+					albumBMP = MyUtils.getBitmapFromDrawable(this, R.drawable.ic_wallpaper_black_24dp);
 				}
 				albumMap.put(albumTitle, albumBMP);
 				Album album = new Album(artist,albumTitle,albumBMP);
@@ -186,49 +171,6 @@ public class AlbumsActivity extends AppCompatActivity {
 			album.setTracks(mapAlbumToTracks.get(album.getTitle()));
 		}
 	}
-
-	public static Bitmap getBitmapFromDrawable(Context context, @DrawableRes int drawableId) {
-		Drawable drawable = ContextCompat.getDrawable(context, drawableId);
-
-		if (drawable instanceof BitmapDrawable) {
-			return ((BitmapDrawable) drawable).getBitmap();
-		} else if (drawable instanceof VectorDrawable || drawable instanceof VectorDrawableCompat) {
-			Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
-			Canvas canvas = new Canvas(bitmap);
-			drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
-			drawable.draw(canvas);
-
-			return bitmap;
-		} else {
-			throw new IllegalArgumentException("unsupported drawable type");
-		}
-	}
-
-	public static void print(String msg) {
-		Log.v("DEBUG", msg);
-	}
-
-	public boolean havePermissions() {
-		boolean permission = false;
-	if(ActivityCompat.checkSelfPermission(this,
-			Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
-			ActivityCompat.checkSelfPermission(this,
-							Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
-			ActivityCompat.checkSelfPermission(this,
-							Manifest.permission.WAKE_LOCK) != PackageManager.PERMISSION_GRANTED)
-	{
-		permission = false;
-		if (ActivityCompat.shouldShowRequestPermissionRationale(
-						this, Manifest.permission.READ_EXTERNAL_STORAGE))
-		{
-			ActivityCompat.requestPermissions(this, permissions, 1);
-		}
-	}
-	else
-		permission = true;
-	return permission;
-	}
-
 	@Override
 	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 		switch (requestCode) {
@@ -239,4 +181,23 @@ public class AlbumsActivity extends AppCompatActivity {
 				break;
 		}
 	}
+	public void bundleTracks(ArrayList<AudioFile> tracks, Intent intent, final String bundleType){
+		List<Bundle> bundles = new ArrayList<>();
+		for (AudioFile f : tracks){
+			Bundle b = new Bundle();
+			b.putString("ARTIST", f.getArtist());
+			b.putString("ALBUM", f.getAlbum());
+			b.putString("DURATION", f.getDuration());
+			b.putString("TITLE", f.getTitle());
+			b.putLong("ID", f.getID());
+			b.putByteArray("ALBUMART", f.getAlbumArt().getNinePatchChunk());
+			bundles.add(b);
+		}
+		int bundleID = 0;
+		for (Bundle b : bundles) {
+			intent.putExtra(bundleType + bundleID, b);
+			bundleID++;
+		}
+	}
+
 }

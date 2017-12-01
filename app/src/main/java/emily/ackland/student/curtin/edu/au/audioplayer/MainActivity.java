@@ -1,19 +1,13 @@
 package emily.ackland.student.curtin.edu.au.audioplayer;
 
 import android.content.ComponentName;
-import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.ParcelFileDescriptor;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ListView;
@@ -21,7 +15,6 @@ import android.widget.MediaController;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-import java.io.FileDescriptor;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,14 +42,18 @@ public class MainActivity extends AppCompatActivity implements MediaController.M
 			if (getIntent().getBundleExtra("ALBUM" + bundleID) != null) {
 				bundles.add(getIntent().getBundleExtra("ALBUM" + bundleID));
 				bundleID++;
-			} else
+			} else if(getIntent().getBundleExtra("VIEW ALL" + bundleID) != null){
+				bundles.add(getIntent().getBundleExtra("VIEW ALL" + bundleID));
+			}else
 				next = false;
 		}
-		getAudioFiles(bundles);
-		setTitle(tracksList.get(0).getTitle());
-		viewAdpt = new AudioAdapter(this, tracksList);
-		tracksView = findViewById(R.id.tracks_list);
-		tracksView.setAdapter(viewAdpt);
+		if (bundles!=null){
+			getAudioFiles(bundles);
+			setTitle(tracksList.get(0).getTitle());
+			viewAdpt = new AudioAdapter(this, tracksList);
+			tracksView = findViewById(R.id.tracks_list);
+			tracksView.setAdapter(viewAdpt);
+		}
 	}
 
 	private void getAudioFiles(List<Bundle> bundles) {
@@ -117,12 +114,10 @@ public class MainActivity extends AppCompatActivity implements MediaController.M
 					updateSeek();
 				}
 			}
-
 			@Override
 			public void onStartTrackingTouch(SeekBar seekBar) {
 				seekHandler.removeCallbacks(run);
 			}
-
 			@Override
 			public void onStopTrackingTouch(SeekBar seekBar) {
 				seekHandler.postDelayed(run, 1000);
@@ -158,10 +153,8 @@ public class MainActivity extends AppCompatActivity implements MediaController.M
 			}
 		});
 	}
-
 	Runnable run = new Runnable() {
 		boolean stopped = true;
-
 		@Override
 		public void run() {
 			setStopped(false);
@@ -171,11 +164,9 @@ public class MainActivity extends AppCompatActivity implements MediaController.M
 				seekHandler.removeCallbacks(run);
 			}
 		}
-
 		public void setStopped(boolean inStopped) {
 			stopped = inStopped;
 		}
-
 		public boolean isStopped() {
 			return stopped;
 		}
@@ -184,33 +175,28 @@ public class MainActivity extends AppCompatActivity implements MediaController.M
 			setStopped(true);
 		}
 	};
-
 	private void updateSeek() {
 		seekBar.setProgress(getCurrentPosition());
-		curr.setText(timeStrToSeconds_MM_SS(getCurrentPosition()));
+		curr.setText(MyUtils.timeInMilliSecToFormattedTimeMM_SS(getCurrentPosition()));
 		seekHandler.postDelayed(run, 1000);
 	}
-
 	private void updateView() {
 		seekBar.setMax(getDuration());
-		duration.setText(timeStrToSeconds_MM_SS(getDuration()));
+		duration.setText(MyUtils.timeInMilliSecToFormattedTimeMM_SS(getDuration()));
 		curr.setText(R.string.track_start);
 	}
-
 	private void playNext() {
 		audioSrv.playNext();
 		if (playbackPaused) {
 			playbackPaused = false;
 		}
 	}
-
 	private void playPrev() {
 		audioSrv.playPrev();
 		if (playbackPaused) {
 			playbackPaused = false;
 		}
 	}
-
 	public void trackPicked(View view) {
 		audioSrv.setTrack(Integer.parseInt(view.getTag().toString()));
 		audioSrv.playAudio();
@@ -220,14 +206,12 @@ public class MainActivity extends AppCompatActivity implements MediaController.M
 		updateView();
 		updateSeek();
 	}
-
 	@Override
 	protected void onPause() {
 		super.onPause();
 		seekHandler.removeCallbacks(run);
 		paused = true;
 	}
-
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -236,12 +220,10 @@ public class MainActivity extends AppCompatActivity implements MediaController.M
 			paused = false;
 		}
 	}
-
 	@Override
 	protected void onStop() {
 		super.onStop();
 	}
-
 	@Override
 	protected void onDestroy() {
 		stopService(playIntent);
@@ -249,109 +231,51 @@ public class MainActivity extends AppCompatActivity implements MediaController.M
 		seekHandler.removeCallbacks(run);
 		super.onDestroy();
 	}
-
 	@Override
 	public void pause() {
 		playbackPaused = true;
 		audioSrv.pausePlayer();
 	}
-
 	@Override
 	public int getDuration() {
 		return Integer.parseInt(audioSrv.getCurrentTrack().getDuration());
 	}
-
 	@Override
 	public int getCurrentPosition() {
 		if (audioSrv != null && audioBound && audioSrv.isPlaying())
 			return audioSrv.getPositon();
 		else return 0;
 	}
-
 	@Override
 	public void start() {
 		audioSrv.go();
 	}
-
 	@Override
 	public boolean canPause() {
 		return true;
 	}
-
 	@Override
 	public boolean isPlaying() {
 		return false;
 	}
-
 	@Override
 	public int getBufferPercentage() {
 		return 0;
 	}
-
 	@Override
 	public boolean canSeekBackward() {
 		return false;
 	}
-
 	@Override
 	public boolean canSeekForward() {
 		return false;
 	}
-
 	@Override
 	public void seekTo(int pos) {
 		audioSrv.seek(pos);
 	}
-
 	@Override
 	public int getAudioSessionId() {
 		return 0;
-	}
-
-	/*converts string time in format mm:ss to total seconds value*/
-	private String timeStrToSeconds_MM_SS(int time) {
-		String formattedTime;
-		Log.d("time", String.valueOf(time));
-		try {
-			int seconds = time / 1000;
-			int minutes = seconds / 60;
-			seconds = seconds % 60;
-			if (seconds < 10) {
-				formattedTime = " " + String.valueOf(minutes) + ":0" + String.valueOf(seconds) + " ";
-				Log.d("formattedTime", formattedTime);
-			} else {
-				formattedTime = " " + String.valueOf(minutes) + ":" + String.valueOf(seconds) + " ";
-				Log.d("formattedTime", formattedTime);
-			}
-		} catch (NumberFormatException e) {
-			formattedTime = "error";
-		}
-		return formattedTime;
-	}
-
-	public Bitmap getAlbumart(Context context, Long album_id) {
-		Bitmap albumArtBitMap = null;
-		BitmapFactory.Options options = new BitmapFactory.Options();
-		try {
-
-			final Uri sArtworkUri = Uri
-							.parse("content://media/external/audio/albumart");
-
-			Uri uri = ContentUris.withAppendedId(sArtworkUri, album_id);
-
-			ParcelFileDescriptor pfd = context.getContentResolver()
-							.openFileDescriptor(uri, "r");
-
-			if (pfd != null) {
-				FileDescriptor fd = pfd.getFileDescriptor();
-				albumArtBitMap = BitmapFactory.decodeFileDescriptor(fd, null,
-								options);
-				pfd = null;
-				fd = null;
-			}
-		} catch (Error ee) {
-		} catch (Exception e) {
-		}
-		return albumArtBitMap;
 	}
 }
