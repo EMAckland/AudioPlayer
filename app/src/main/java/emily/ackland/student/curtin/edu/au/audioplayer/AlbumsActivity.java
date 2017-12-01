@@ -1,8 +1,10 @@
 package emily.ackland.student.curtin.edu.au.audioplayer;
 
+import android.Manifest;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -13,7 +15,9 @@ import android.graphics.drawable.VectorDrawable;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.DrawableRes;
+import android.support.annotation.NonNull;
 import android.support.graphics.drawable.VectorDrawableCompat;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -42,18 +46,28 @@ public class AlbumsActivity extends AppCompatActivity {
 	private List<String> albums = new ArrayList<>();
 	private List<Album> albumList = new ArrayList<>();
 	private Map<String,Bitmap> albumMap = new HashMap<>();
-	private Map<String, ArrayList<AudioFile>> mapAlbumtoTracks = new HashMap<>();
+	private Map<String, ArrayList<AudioFile>> mapAlbumToTracks = new HashMap<>();
 	private List<String> artists = new ArrayList<>();
+	private final int REQUEST_CODE_STORAGE_READ = 1;
+	private String[] permissions = new String[]{
+					Manifest.permission.READ_EXTERNAL_STORAGE,
+					Manifest.permission.WRITE_EXTERNAL_STORAGE,
+					Manifest.permission.WAKE_LOCK,
+					Manifest.permission.MEDIA_CONTENT_CONTROL
+	};
+
+	private int[] permissionCodes = new int[]{1, 2, 3};
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_albums);
-		albumsView = findViewById(R.id.albums_table);
-		getAudioFiles();
-		generateAlbumView();
+		if(havePermissions()){
+			albumsView = findViewById(R.id.albums_table);
+			getAudioFiles();
+			generateAlbumView();
+		}
 	}
-
 	private void generateAlbumView() {
 		int height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 120, getResources().getDisplayMetrics());
 		int width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 120, getResources().getDisplayMetrics());
@@ -160,16 +174,16 @@ public class AlbumsActivity extends AppCompatActivity {
 				AudioFile track = new AudioFile(trackID, title, artist, duration,
 								albumTitle, albumMap.get(albumTitle));
 				tracksList.add(track);
-				if (mapAlbumtoTracks.keySet().contains(albumTitle))
-					mapAlbumtoTracks.get(albumTitle).add(track);
+				if (mapAlbumToTracks.keySet().contains(albumTitle))
+					mapAlbumToTracks.get(albumTitle).add(track);
 				else{
-					mapAlbumtoTracks.put(albumTitle, new ArrayList<AudioFile>());
-					mapAlbumtoTracks.get(albumTitle).add(track);
+					mapAlbumToTracks.put(albumTitle, new ArrayList<AudioFile>());
+					mapAlbumToTracks.get(albumTitle).add(track);
 				}
 			} while (audioCursor.moveToNext());
 		}
 		for (Album album : albumSet){
-			album.setTracks(mapAlbumtoTracks.get(album.getTitle()));
+			album.setTracks(mapAlbumToTracks.get(album.getTitle()));
 		}
 	}
 
@@ -192,5 +206,37 @@ public class AlbumsActivity extends AppCompatActivity {
 
 	public static void print(String msg) {
 		Log.v("DEBUG", msg);
+	}
+
+	public boolean havePermissions() {
+		boolean permission = false;
+	if(ActivityCompat.checkSelfPermission(this,
+			Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
+			ActivityCompat.checkSelfPermission(this,
+							Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
+			ActivityCompat.checkSelfPermission(this,
+							Manifest.permission.WAKE_LOCK) != PackageManager.PERMISSION_GRANTED)
+	{
+		permission = false;
+		if (ActivityCompat.shouldShowRequestPermissionRationale(
+						this, Manifest.permission.READ_EXTERNAL_STORAGE))
+		{
+			ActivityCompat.requestPermissions(this, permissions, 1);
+		}
+	}
+	else
+		permission = true;
+	return permission;
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		switch (requestCode) {
+			case 1:
+				albumsView = findViewById(R.id.albums_table);
+				getAudioFiles();
+				generateAlbumView();
+				break;
+		}
 	}
 }
