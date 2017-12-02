@@ -1,16 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<emily.ackland.student.curtin.edu.au.audioplayer.CheckableLinearLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="5dp" >
-    <CheckBox
-        android:id="@+id/checkbox"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-        <include
-            android:layout="@layout/track"/>
-    </CheckBox>
-
-</emily.ackland.student.curtin.edu.au.audioplayer.CheckableLinearLayout>
+    android:padding="5dp"
+    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:addStatesFromChildren="true"
+    tools:showIn="@layout/select_tracks_activity">
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="?android:attr/listPreferredItemHeight"
+        android:orientation="horizontal">
+        <CheckBox
+            android:id="@+id/checkbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/song_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+            <TextView
+                android:id="@+id/song_artist"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="18sp" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

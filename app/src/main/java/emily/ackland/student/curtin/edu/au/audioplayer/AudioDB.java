@@ -40,21 +40,7 @@ public class AudioDB {
 			dbHelper = DataBaseHelper.getHelper(mContext);
 		database = dbHelper.getReadableDatabase();
 	}
-/*public long insert(Map<String, String> s, String table) {
-	ContentValues albumValues = new ContentValues();
-	ContentValues trackValues = new ContentValues();
-		trackValues.put(DataBaseHelper._ID, s.get(DataBaseHelper.TRACK_ID));
-		albumValues.put(DataBaseHelper._ID, s.get(DataBaseHelper.ALBUM_ID));
-		albumValues.put(DataBaseHelper.TRACK, s.get(DataBaseHelper.TRACK));
-		trackValues.put(DataBaseHelper.TRACK, s.get(DataBaseHelper.TRACK));
-		albumValues.put(DataBaseHelper.ARTIST, s.get(DataBaseHelper.ARTIST));
-		trackValues.put(DataBaseHelper.ARTIST, s.get(DataBaseHelper.ARTIST));
-		trackValues.put(DataBaseHelper.ALBUM, s.get(DataBaseHelper.ALBUM));
-		albumValues.put(DataBaseHelper.ALBUM_ART, s.get(DataBaseHelper.ALBUM_ART));
-		trackValues.put(DataBaseHelper.DURATION, s.get(DataBaseHelper.DURATION));
-		database.insert(DataBaseHelper.ALBUM_TABLE+s.get(DataBaseHelper.ALBUM_ID), null, albumValues);
-	return database.insert(DataBaseHelper.TRACKS_TABLE, null, trackValues);
-	}*/
+
 	public long insertIntoPlayList(Map<String, String> s, String playlist){
 		ContentValues trackValues = new ContentValues();
 		ContentValues playlistValues = new ContentValues();

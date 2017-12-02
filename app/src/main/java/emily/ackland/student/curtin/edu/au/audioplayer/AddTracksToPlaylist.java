@@ -18,14 +18,15 @@ public class AddTracksToPlaylist extends AppCompatActivity {
 
 	protected void onCreate(Bundle savedInst) {
 		super.onCreate(savedInst);
-		setContentView(R.layout.activity_playlists);
+		setContentView(R.layout.select_tracks_activity);
 		init();
 	}
 	private void init() {
 		playlist = getIntent().getExtras().getString("PLAYLIST NAME");
+		tracksView=findViewById(R.id.checkable_list);
 		tracksList = MyUtils.getTracks(this);
 		viewAdpt = new AudioAdapter(this, tracksList);
-		tracksView = findViewById(R.id.tracks_list);
+		tracksView = findViewById(R.id.checkable_list);
 		tracksView.setAdapter(viewAdpt);
 	}
 }

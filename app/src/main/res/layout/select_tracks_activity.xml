@@ -6,7 +6,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="emily.ackland.student.curtin.edu.au.audioplayer.MainActivity">
+
     <ListView
+        android:id="@+id/checkable_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true">

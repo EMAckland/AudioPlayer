@@ -56,6 +56,8 @@ public class PlaylistActivity extends AppCompatActivity {
 											public void onClick(DialogInterface dialog, int id) {
 												Intent intent = new Intent(getBaseContext(), AddTracksToPlaylist.class);
 												intent.putExtra("PLAYLIST NAME", userInput.getText());
+												AudioDB db = new AudioDB(getBaseContext(), R.integer.DATABASE_READ_WRITE_MODE);
+												db.createNewPlayList()
 												startActivity(intent);
 											}
 										})
