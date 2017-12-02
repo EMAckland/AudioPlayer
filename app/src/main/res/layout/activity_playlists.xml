@@ -4,9 +4,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <ScrollView
-        android:id="@+id/playlist_view"
+    android:layout_height="match_parent"
+    tools:context="emily.ackland.student.curtin.edu.au.audioplayer.PlaylistActivity">
+    <ListView
+        android:id="@+id/playlist_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
     <android.support.design.widget.FloatingActionButton

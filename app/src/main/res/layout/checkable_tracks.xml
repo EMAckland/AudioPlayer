@@ -7,17 +7,27 @@
     android:padding="5dp"
     android:layout_height="?android:attr/listPreferredItemHeight"
     android:addStatesFromChildren="true"
-    tools:showIn="@layout/select_tracks_activity">
+    tools:showIn="@layout/select_tracks_activity"
+    tools:context=".AddTracksToPlaylist">
     <LinearLayout
+        android:id="@+id/check_element"
         android:layout_width="wrap_content"
         android:layout_height="?android:attr/listPreferredItemHeight"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        tools:showIn="@layout/select_tracks_activity"
+        tools:context=".AddTracksToPlaylist"
+        >
+
         <CheckBox
             android:id="@+id/checkbox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"/>
+            android:layout_marginTop="10dp"
+            android:checked="false"
+            tools:showIn="@layout/select_tracks_activity"
+            tools:context=".AddTracksToPlaylist"/>
         <LinearLayout
+            android:id="@+id/innercheckablelist"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">

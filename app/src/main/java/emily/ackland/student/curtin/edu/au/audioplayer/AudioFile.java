@@ -24,11 +24,26 @@ public class AudioFile {
         album=inAlbum;
         albumID=inAlbumID;
     }
-
+    public AudioFile(AudioFile inTrack){
+        id=inTrack.id;
+        title=inTrack.title;
+        artist=inTrack.artist;
+        duration=inTrack.duration;
+        album=inTrack.album;
+        albumID=inTrack.albumID;
+    }
     public long getID(){return id;}
     public String getTitle(){return title;}
     public String getArtist(){return artist;}
     public String getDuration(){return duration;}
     public String getAlbum(){return album;}
     public Bitmap getAlbumArt(Context ctx){return MyUtils.getAlbumart(ctx,albumID);}
+
+    @Override
+    public boolean equals(Object o){
+        if(o instanceof AudioFile){
+           return ((AudioFile)o).getID() == id;
+        }else
+            return false;
+    }
 }

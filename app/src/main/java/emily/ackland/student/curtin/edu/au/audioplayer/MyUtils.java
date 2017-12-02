@@ -21,6 +21,7 @@ import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.util.TypedValue;
 
 import java.io.FileDescriptor;
 import java.util.ArrayList;
@@ -116,7 +117,6 @@ public class MyUtils {
 	}
 
 	public static ArrayList<AudioFile> getTracks(Context ctx) {
-
 		ArrayList<AudioFile> tracksList = new ArrayList<>();
 		ContentResolver audioResolver = ctx.getContentResolver();
 
@@ -250,5 +250,9 @@ public class MyUtils {
 			album.setTracks(mapAlbumToTracks.get(album.getTitle()));
 		}
 		return albumSet;
+	}
+	public static int getDIP(Context ctx, int val){
+		return   (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, val,
+						ctx.getResources().getDisplayMetrics());
 	}
 }

@@ -2,6 +2,7 @@ package emily.ackland.student.curtin.edu.au.audioplayer;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 
@@ -29,7 +30,6 @@ public class AudioDB {
 			throw e;
 		}
 	}
-
 	public void open() throws SQLException {
 		if (dbHelper == null)
 			dbHelper = DataBaseHelper.getHelper(mContext);
@@ -41,17 +41,25 @@ public class AudioDB {
 		database = dbHelper.getReadableDatabase();
 	}
 
-	public long insertIntoPlayList(Map<String, String> s, String playlist){
+	public long insertIntoPlayList(Map<String, String> s){
 		ContentValues trackValues = new ContentValues();
 		ContentValues playlistValues = new ContentValues();
 		trackValues.put(DataBaseHelper.TRACK_ID, s.get(DataBaseHelper.TRACK_ID));
 		trackValues.put(DataBaseHelper.PLAYLIST_ID, s.get(DataBaseHelper.PLAYLIST_ID));
 		return database.insert(DataBaseHelper.PLAYLIST_TRACKS_TABLE, null, trackValues);
 	}
-	public long createNewPlayList(Map<String, String> s, String playlist){
+	public long createNewPlayList(String playlist){
 		ContentValues values = new ContentValues();
-		values.put(DataBaseHelper.PLAYLIST_ID, s.get(DataBaseHelper.PLAYLIST_ID));
-		values.put(DataBaseHelper.PLAYLIST_NAME, s.get(DataBaseHelper.PLAYLIST_NAME));
+		//values.put(DataBaseHelper.PLAYLIST_ID, s.get(DataBaseHelper.PLAYLIST_ID));
+		values.put(DataBaseHelper.PLAYLIST_NAME, playlist);
 		return database.insert(DataBaseHelper.PLAYLISTS_TABLE, null, values);
+	}
+	public Cursor query(String table, String[] columns, String selection,
+											String[] args, String groupBy, String having, String orderBy){
+
+		return database.query(table,columns,selection,args,groupBy,having,orderBy);
+	}
+	public void wipeAll(){
+		dbHelper.wipeAll(database);
 	}
 }
