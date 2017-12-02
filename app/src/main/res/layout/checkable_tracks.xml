@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<emily.ackland.student.curtin.edu.au.audioplayer.CheckableLinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="5dp" >
+    <CheckBox
+        android:id="@+id/checkbox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
+        <include
+            android:layout="@layout/track"/>
+    </CheckBox>
+
+</emily.ackland.student.curtin.edu.au.audioplayer.CheckableLinearLayout>

@@ -2,9 +2,11 @@ package emily.ackland.student.curtin.edu.au.audioplayer;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -13,6 +15,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.VectorDrawable;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
+import android.provider.MediaStore;
 import android.support.annotation.DrawableRes;
 import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.v4.app.ActivityCompat;
@@ -20,6 +23,11 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import java.io.FileDescriptor;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by Emily on 12/1/2017.
@@ -42,29 +50,29 @@ public class MyUtils {
 			throw new IllegalArgumentException("unsupported drawable type");
 		}
 	}
+
 	public static boolean havePermissions(Activity activity, Context ctx, String[] permissions) {
 		boolean permission = false;
-		if(ActivityCompat.checkSelfPermission(ctx,
+		if (ActivityCompat.checkSelfPermission(ctx,
 						Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
 						ActivityCompat.checkSelfPermission(ctx,
 										Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
 						ActivityCompat.checkSelfPermission(ctx,
-										Manifest.permission.WAKE_LOCK) != PackageManager.PERMISSION_GRANTED)
-		{
+										Manifest.permission.WAKE_LOCK) != PackageManager.PERMISSION_GRANTED) {
 			permission = false;
 			if (ActivityCompat.shouldShowRequestPermissionRationale(
-							activity, Manifest.permission.READ_EXTERNAL_STORAGE))
-			{
+							activity, Manifest.permission.READ_EXTERNAL_STORAGE)) {
 				ActivityCompat.requestPermissions(activity, permissions, 1);
 			}
-		}
-		else
+		} else
 			permission = true;
 		return permission;
 	}
+
 	public static void print(String msg) {
 		Log.v("DEBUG", msg);
 	}
+
 	public static String timeInMilliSecToFormattedTimeMM_SS(int time) {
 		String formattedTime;
 		Log.d("time", String.valueOf(time));
@@ -84,6 +92,7 @@ public class MyUtils {
 		}
 		return formattedTime;
 	}
+
 	public static Bitmap getAlbumart(Context context, Long album_id) {
 		Bitmap albumArtBitMap = null;
 		BitmapFactory.Options options = new BitmapFactory.Options();
@@ -104,5 +113,142 @@ public class MyUtils {
 		} catch (Exception e) {
 		}
 		return albumArtBitMap;
+	}
+
+	public static ArrayList<AudioFile> getTracks(Context ctx) {
+
+		ArrayList<AudioFile> tracksList = new ArrayList<>();
+		ContentResolver audioResolver = ctx.getContentResolver();
+
+		Cursor audioCursor = audioResolver.query(
+						MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+						null,
+						null,
+						null,
+						null
+		);
+
+		if (audioCursor != null && audioCursor.moveToFirst()) {
+			int artistCol = audioCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST);
+			int titleCol = audioCursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
+			int idColumn = audioCursor.getColumnIndex(MediaStore.Audio.Media._ID);
+			int durColumn = audioCursor.getColumnIndex(MediaStore.Audio.Media.DURATION);
+			int albumCol = audioCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM);
+			int albumIDCol = audioCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID);
+			do {
+				String artist = audioCursor.getString(artistCol);
+				String title = audioCursor.getString(titleCol);
+				long trackID = audioCursor.getLong(idColumn);
+				String duration = audioCursor.getString(durColumn);
+				String albumTitle = audioCursor.getString(albumCol);
+				Long albumID = audioCursor.getLong(albumIDCol);
+				AudioFile track = new AudioFile(trackID, title, artist, duration,
+								albumTitle, albumID);
+				tracksList.add(track);
+			} while (audioCursor.moveToNext());
+		}
+		return tracksList;
+	}
+
+	public static ArrayList<AudioFile> getAlbum(Context ctx, String inAlbumID) {
+		ArrayList<AudioFile> tracksList = new ArrayList<>();
+		ContentResolver audioResolver = ctx.getContentResolver();
+		Cursor audioCursor = audioResolver.query(
+						MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+						null,
+						MediaStore.Audio.Media._ID + "=" + inAlbumID,
+						null,
+						null
+		);
+		if (audioCursor != null && audioCursor.moveToFirst()) {
+			int artistCol = audioCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST);
+			int titleCol = audioCursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
+			int idColumn = audioCursor.getColumnIndex(MediaStore.Audio.Media._ID);
+			int durColumn = audioCursor.getColumnIndex(MediaStore.Audio.Media.DURATION);
+			int albumCol = audioCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM);
+			int albumIDCol = audioCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID);
+			do {
+				String artist = audioCursor.getString(artistCol);
+				String title = audioCursor.getString(titleCol);
+				long trackID = audioCursor.getLong(idColumn);
+				String duration = audioCursor.getString(durColumn);
+				String albumTitle = audioCursor.getString(albumCol);
+				Long albumID = audioCursor.getLong(albumIDCol);
+				AudioFile track = new AudioFile(trackID, title, artist, duration,
+								albumTitle, albumID);
+				tracksList.add(track);
+			} while (audioCursor.moveToNext());
+		}
+		return tracksList;
+	}
+
+	public static Set<Album> getAlbums(Context ctx ) {
+		Map<String, ArrayList<AudioFile>> mapAlbumToTracks = new HashMap<>();
+		Set<Album> albumSet = new HashSet<>();
+		ArrayList<AudioFile> tracksList = new ArrayList<>();
+		Map<String,Bitmap> albumMap = new HashMap<>();
+		ContentResolver audioResolver = ctx.getContentResolver();
+		ContentResolver albumResolver = ctx.getContentResolver();
+		Bitmap albumBMP;
+		Cursor albumCursor = albumResolver.query(
+						MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI,
+						null,
+						null,
+						null,
+						null
+		);
+		Cursor audioCursor = audioResolver.query(
+						MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+						null,
+						null,
+						null,
+						null
+		);
+		if (albumCursor != null && albumCursor.moveToFirst()) {
+			int albumCol = albumCursor.getColumnIndex(MediaStore.Audio.Albums.ALBUM);
+			//int albumArtCol = albumCursor.getColumnIndex(MediaStore.Audio.AlbumColumns.ALBUM_ART);
+			int artistCol = albumCursor.getColumnIndex(MediaStore.Audio.Albums.ARTIST);
+			int IDCol = albumCursor.getColumnIndex(MediaStore.Audio.Albums._ID);
+			int albumIDCol = albumCursor.getColumnIndex(MediaStore.Audio.Albums.ALBUM_ID);
+			do {
+				String albumTitle = albumCursor.getString(albumCol);
+				String artist = albumCursor.getString(artistCol);
+				long id = albumCursor.getLong(IDCol);
+				long albumID = albumCursor.getLong(albumIDCol);
+
+				albumMap.put(albumTitle, MyUtils.getAlbumart(ctx,id));
+				Album album = new Album(artist,albumTitle,id, albumID);
+				albumSet.add(album);
+			} while (albumCursor.moveToNext());
+		}
+		if (audioCursor != null && audioCursor.moveToFirst()) {
+			int artistCol = audioCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST);
+			int titleCol = audioCursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
+			int idColumn = audioCursor.getColumnIndex(MediaStore.Audio.Media._ID);
+			int durColumn = audioCursor.getColumnIndex(MediaStore.Audio.Media.DURATION);
+			int albumCol = audioCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM);
+			int albumIDCol = audioCursor.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID);
+			do {
+				String artist = audioCursor.getString(artistCol);
+				String title = audioCursor.getString(titleCol);
+				long trackID = audioCursor.getLong(idColumn);
+				String duration = audioCursor.getString(durColumn);
+				String albumTitle = audioCursor.getString(albumCol);
+				Long albumID = audioCursor.getLong(albumIDCol);
+				AudioFile track = new AudioFile(trackID, title, artist, duration,
+								albumTitle, albumID);
+				tracksList.add(track);
+				if (mapAlbumToTracks.keySet().contains(albumTitle))
+					mapAlbumToTracks.get(albumTitle).add(track);
+				else{
+					mapAlbumToTracks.put(albumTitle, new ArrayList<AudioFile>());
+					mapAlbumToTracks.get(albumTitle).add(track);
+				}
+			} while (audioCursor.moveToNext());
+		}
+		for (Album album : albumSet){
+			album.setTracks(mapAlbumToTracks.get(album.getTitle()));
+		}
+		return albumSet;
 	}
 }

@@ -38,7 +38,7 @@ public class AudioAdapter extends BaseAdapter {
     }
 
     public View getView(int position, View convertView, ViewGroup parent) {
-        //map to song layout
+        //map to song select_tracks_activity
         LinearLayout songLay = (LinearLayout)audioInfl.inflate(R.layout.track, parent, false);
         //get title and artist views
         TextView songView = (TextView)songLay.findViewById(R.id.song_title);

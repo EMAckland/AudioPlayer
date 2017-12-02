@@ -1,5 +1,6 @@
 package emily.ackland.student.curtin.edu.au.audioplayer;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 
 import java.util.ArrayList;
@@ -10,42 +11,46 @@ import java.util.Objects;
  */
 
 public class Album {
-    private ArrayList<AudioFile> tracks = new ArrayList<>();
+    private ArrayList<AudioFile> tracks;
     private String artist;
     private String title;
-    private Bitmap albumArt;
+    private Long albumID;
+    private Long ID;
 
-    public Album(String artist, String title, Bitmap albumArt) {
+    public Album(String artist, String title, Long ID, Long albumID) {
         this.artist = artist;
         this.title = title;
-        this.albumArt = albumArt;
+        this.albumID = albumID;
+        this.ID = ID;
+        tracks = new ArrayList<>();
     }
 
-    public Album(String artist, String title, ArrayList<AudioFile> tracks, Bitmap albumArt) {
+    public Album(String artist, String title, ArrayList<AudioFile> tracks, Long ID,Long albumID) {
         this.artist = artist;
         this.title = title;
-        this.albumArt = albumArt;
+        this.albumID = albumID;
         this.tracks = tracks;
+        this.ID = ID;
     }
 
-    public void setTracks(ArrayList<AudioFile> inTracks) {
-        tracks = inTracks;
-    }
 
     public ArrayList<AudioFile> getTracks() {
         return tracks;
     }
-
+    public Long getAlbumID(){return albumID;}
     public String getArtist() {
         return artist;
     }
-
     public String getTitle() {
         return title;
     }
+    public Bitmap getAlbumArt(Context ctx) {
+        return MyUtils.getAlbumart(ctx, ID);
+    }
 
-    public Bitmap getAlbumArt() {
-        return albumArt;
+    public void setTracks(ArrayList<AudioFile> inTracks) {
+
+        tracks = inTracks;
     }
 
     public boolean equals(Album a) {
@@ -54,7 +59,6 @@ public class Album {
         else
             return false;
     }
-
     public int hashCode() {
         return Objects.hash(artist, title);
     }

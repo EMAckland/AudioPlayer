@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="DATABASE_READ_ONLY_MODE">-1</integer>
+    <integer name="DATABASE_READ_WRITE_MODE">0</integer>
+    <integer name="ARTIST_COL">0</integer>
+    <integer name="ALBUM_COL">1</integer>
+    <integer name="ALBUM_TITLE_COL">2</integer>
+    <integer name="TRACK_ID_COL">3</integer>
+    <integer name="DURATION_COL">4</integer>
+    <integer name="ALBUM_ART_COL">5</integer>
+    <integer name="TRACK_COL">6</integer>
+</resources>
