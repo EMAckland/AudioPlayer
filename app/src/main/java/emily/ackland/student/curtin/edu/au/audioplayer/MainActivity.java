@@ -7,18 +7,18 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.support.v7.app.AppCompatActivity;
+import android.support.design.widget.NavigationView;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.MediaController;
 import android.widget.SeekBar;
 import android.widget.TextView;
-
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements MediaController.MediaPlayerControl {
+public class MainActivity extends DrawerActivity implements MediaController.MediaPlayerControl,
+				NavigationView.OnNavigationItemSelectedListener{
 	private ListView tracksView;
 	private ArrayList<AudioFile> tracksList = new ArrayList<>();
 	private AudioService audioSrv;

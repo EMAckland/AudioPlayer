@@ -5,31 +5,29 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Map;
 /**
  * Adapter for creating list view out of ArrayList<AudioFile> elements
  * Created by Emily on 11/29/2017.
  */
 
 public class PlaylistAdapter extends BaseAdapter {
-	private Map<Long, String> playlist;
+	private ArrayList<AudioFile> tracks, selectedTracks;
 	private LayoutInflater audioInfl;
-	Iterator<Long> iterator;
-	private ArrayList<String> plstr;
+	private Context ctx;
 
-	public PlaylistAdapter(Context ctx, Map<Long, String> inpl, ArrayList<String> plStr) {
-		playlist = inpl;
-		iterator = playlist.keySet().iterator();
+	public PlaylistAdapter(Context ctx, ArrayList<AudioFile> inTracks) {
+		tracks = inTracks;
+		selectedTracks = new ArrayList<>();
 		audioInfl = LayoutInflater.from(ctx);
-		this.plstr = plStr;
+		this.ctx = ctx;
 	}
 	@Override
-	public int getCount() {return playlist.size();}
+	public int getCount() {return tracks.size();}
 
 	@Override
 	public Object getItem(int arg0) {
@@ -42,20 +40,42 @@ public class PlaylistAdapter extends BaseAdapter {
 		// TODO Auto-generated method stub
 		return 0;
 	}
-
+	public ArrayList<AudioFile> getSelectedTracks(){
+		return selectedTracks;
+	}
 	public View getView(int position, View convertView, ViewGroup parent) {
-		LinearLayout plLay = (LinearLayout)audioInfl.inflate(R.layout.playlist, parent, false);
-/*		if(iterator.hasNext()){
-			TextView plView = (TextView)plLay.findViewById(R.id.playlist_title);
-			String plTitle = playlist.get(iterator.next());
-			plView.setText(plTitle);
-			plLay.setTag(position);
-		}*/
-		TextView plView = (TextView)plLay.findViewById(R.id.playlist_title);
-		String plTitle = playlist.get(position);
-		plView.setText(plTitle);
-		plLay.setTag(position);
-		return plLay;
+		//map to song select_tracks_activity
+		LinearLayout songLay = (LinearLayout)audioInfl.inflate(R.layout.checkable_tracks, parent, false);
+		//get title and artist views
+		TextView songView = (TextView)songLay.findViewById(R.id.song_title);
+		TextView artistView = (TextView)songLay.findViewById(R.id.song_artist);
+		LinearLayout checkLay = songLay.findViewById(R.id.check_element);
+		final AudioFile currSong = tracks.get(position);
+		final CheckBox checkBox = (CheckBox) checkLay.getChildAt(0);
+		checkBox.setTag(currSong);
+		checkBox.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				final boolean isChecked = ((CheckBox)view).isChecked();
+				if(isChecked)
+					selectedTracks.add((AudioFile)view.getTag());
+				else {
+					for(AudioFile t : tracks){
+						if(view.getTag().equals(t)){
+							selectedTracks.remove(t);
+						}
+					}
+				}
+			}
+		});
+		//get song using position
+
+		//get title and artist strings
+		songView.setText(currSong.getTitle());
+		artistView.setText(currSong.getArtist());
+		//set position as tag
+		songLay.setTag(position);
+		return songLay;
 	}
 }
 

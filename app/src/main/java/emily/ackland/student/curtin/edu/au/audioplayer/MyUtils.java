@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -14,6 +15,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.VectorDrawable;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.support.annotation.DrawableRes;
@@ -27,6 +29,7 @@ import java.io.FileDescriptor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -116,7 +119,12 @@ public class MyUtils {
 		return albumArtBitMap;
 	}
 
-	public static ArrayList<AudioFile> getTracks(Context ctx) {
+	public static ArrayList<AudioFile> getTracks(Context ctx, String args) {
+		String[] SELECTION_ARGS;
+		if(args==null)
+			SELECTION_ARGS = null;
+		else
+			SELECTION_ARGS = new String[] {"_ID" + " =?"+args};
 		ArrayList<AudioFile> tracksList = new ArrayList<>();
 		ContentResolver audioResolver = ctx.getContentResolver();
 
@@ -124,7 +132,7 @@ public class MyUtils {
 						MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
 						null,
 						null,
-						null,
+						SELECTION_ARGS,
 						null
 		);
 
@@ -179,6 +187,7 @@ public class MyUtils {
 				tracksList.add(track);
 			} while (audioCursor.moveToNext());
 		}
+		audioCursor.close();
 		return tracksList;
 	}
 
@@ -206,18 +215,18 @@ public class MyUtils {
 		);
 		if (albumCursor != null && albumCursor.moveToFirst()) {
 			int albumCol = albumCursor.getColumnIndex(MediaStore.Audio.Albums.ALBUM);
-			//int albumArtCol = albumCursor.getColumnIndex(MediaStore.Audio.AlbumColumns.ALBUM_ART);
+			int albumArtCol = albumCursor.getColumnIndex(MediaStore.Audio.AlbumColumns.ALBUM_ART);
 			int artistCol = albumCursor.getColumnIndex(MediaStore.Audio.Albums.ARTIST);
 			int IDCol = albumCursor.getColumnIndex(MediaStore.Audio.Albums._ID);
-			int albumIDCol = albumCursor.getColumnIndex(MediaStore.Audio.Albums.ALBUM_ID);
+			//int albumIDCol = albumCursor.getColumnIndex(MediaStore.Audio.Albums.ALBUM_ID);
 			do {
 				String albumTitle = albumCursor.getString(albumCol);
 				String artist = albumCursor.getString(artistCol);
 				long id = albumCursor.getLong(IDCol);
-				long albumID = albumCursor.getLong(albumIDCol);
-
+				//long albumID = albumCursor.getLong(albumIDCol);
+				String art = albumCursor.getString(albumArtCol);
 				albumMap.put(albumTitle, MyUtils.getAlbumart(ctx,id));
-				Album album = new Album(artist,albumTitle,id, albumID);
+				Album album = new Album(artist,albumTitle,id, id);
 				albumSet.add(album);
 			} while (albumCursor.moveToNext());
 		}
@@ -254,5 +263,22 @@ public class MyUtils {
 	public static int getDIP(Context ctx, int val){
 		return   (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, val,
 						ctx.getResources().getDisplayMetrics());
+	}
+	public static void bundleTracks(ArrayList<AudioFile> tracks, Intent intent, final String bundleType){
+		List<Bundle> bundles = new ArrayList<>();
+		for (AudioFile f : tracks){
+			Bundle b = new Bundle();
+			b.putString("ARTIST", f.getArtist());
+			b.putString("ALBUM", f.getAlbum());
+			b.putString("DURATION", f.getDuration());
+			b.putString("TITLE", f.getTitle());
+			b.putLong("ID", f.getID());
+			bundles.add(b);
+		}
+		int bundleID = 0;
+		for (Bundle b : bundles) {
+			intent.putExtra(bundleType + bundleID, b);
+			bundleID++;
+		}
 	}
 }

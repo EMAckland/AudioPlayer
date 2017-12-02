@@ -4,10 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:onClick="trackPicked"
+    android:onClick="playlistPicked"
     android:orientation="vertical"
     android:padding="5dp"
-    tools:showIn="@layout/activity_playlists">
+    tools:showIn="@layout/activity_drawer">
     <TextView
         android:id="@+id/playlist_title"
         android:layout_width="fill_parent"

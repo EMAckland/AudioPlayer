@@ -18,7 +18,7 @@ import java.util.Map;
 public class AddTracksToPlaylist extends AppCompatActivity {
 	private ArrayList<AudioFile> tracksList;
 	private String playlist;
-	private AudioAdapter viewAdpt;
+	private PlaylistAdapter viewAdpt;
 	private ListView tracksListView;
 	private CheckBox checkBox;
 	private ArrayList<AudioFile> plTracks;
@@ -35,8 +35,8 @@ public class AddTracksToPlaylist extends AppCompatActivity {
 		plID =((Bundle) (getIntent().getExtras())).getString(AudioContract.FeedEntry.TRACK_ID);
 		//playlist = getIntent().getExtras().getString("PLAYLIST NAME");
 		tracksListView=findViewById(R.id.checkable_list);
-		tracksList = MyUtils.getTracks(this);
-		viewAdpt = new AudioAdapter(this, tracksList);
+		tracksList = MyUtils.getTracks(this,null);
+		viewAdpt = new PlaylistAdapter(this, tracksList);
 		tracksListView.setAdapter(viewAdpt);
 		doneButton = findViewById(R.id.donebutton);
 		doneButton.setOnClickListener(new View.OnClickListener() {
