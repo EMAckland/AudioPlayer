@@ -1,27 +1,22 @@
 package emily.ackland.student.curtin.edu.au.audioplayer;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.NavigationView;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,8 +28,7 @@ import static emily.ackland.student.curtin.edu.au.audioplayer.MyUtils.print;
  * Created by Emily on 12/2/2017.
  */
 
-public class PlaylistActivity extends AppCompatActivity
-				implements NavigationView.OnNavigationItemSelectedListener{
+public class PlaylistActivity extends Fragment {
 	FloatingActionButton addNewPlFAB;
 	ListView playlistsView;
 	AudioDB db;
@@ -44,23 +38,25 @@ public class PlaylistActivity extends AppCompatActivity
 	PlaylistAdapter adapter;
 	ArrayList<String> plStr;
 	ArrayAdapter<String> arrayAdapter;
+	public PlaylistActivity(){
+
+	}
+	public static Fragment newInstance(Context context) {
+		AlbumsViewFragment f = new AlbumsViewFragment();
+		return f;
+	}
+	@Nullable
 	@Override
-	protected void onCreate(Bundle savedInst) {
-		super.onCreate(savedInst);
-		setContentView(R.layout.activity_playlists);
-		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-		setSupportActionBar(toolbar);
-		DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-		ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-						this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-		drawer.addDrawerListener(toggle);
-		toggle.syncState();
-		NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-		navigationView.setNavigationItemSelectedListener(this);
+	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+		ViewGroup root = (ViewGroup) inflater.inflate(R.layout.activity_playlists, null);
+		return root;
+	}
+	@Override
+	public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
 		plStr = new ArrayList<>();
-		playlistsView = findViewById(R.id.playlist_list);
-		addNewPlFAB = findViewById(R.id.add_playlistFAB);
-		db = new AudioDB(this, R.integer.DATABASE_READ_WRITE_MODE);
+		addNewPlFAB = view.findViewById(R.id.add_playlistFAB);
+		playlistsView = (ListView) view.findViewById(R.id.playlist_list);
+		db = new AudioDB(getContext(), R.integer.DATABASE_READ_WRITE_MODE);
 		addNewPlFAB.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
@@ -68,35 +64,33 @@ public class PlaylistActivity extends AppCompatActivity
 			}
 		});
 		playlists = getPlaylists();
-		arrayAdapter = new ArrayAdapter<String>(this,
+		arrayAdapter = new ArrayAdapter<String>(getContext(),
 						android.R.layout.simple_list_item_1,plStr);
 		playlistsView.setAdapter(arrayAdapter);
 		playlistsView.setOnItemClickListener(new ListView.OnItemClickListener() {
-
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
 															long arg3) {
 
 			}
-
 		});
 	}
 	public void playlistPicked(View view){
 		String plID = (view.getTag().toString());
 		plStr.get(Integer.parseInt(plID));
 		ArrayList<AudioFile> tracks = new ArrayList<>();
-		tracks = MyUtils.getTracks(this,plStr.get(Integer.parseInt(plID)));
-		Intent intent = new Intent(this, MainActivity.class);
+		tracks = MyUtils.getTracks(getContext(),plStr.get(Integer.parseInt(plID)));
+		Intent intent = new Intent(getContext(), MainActivity.class);
 		MyUtils.bundleTracks(tracks,intent,"PLAYLIST");
 	}
-	private void init() {
-		layout = new LinearLayout(this);
+/*	private void init() {
+		layout = new LinearLayout(getContext());
 		layout.setLayoutParams(new LinearLayout.LayoutParams(
 						LinearLayout.LayoutParams.MATCH_PARENT,
 						LinearLayout.LayoutParams.MATCH_PARENT)
 		);
 
-		playlistsView = new ListView(this);
+		playlistsView = new ListView(getContext());
 		playlistsView.setLayoutParams(new LinearLayout.LayoutParams(
 						LinearLayout.LayoutParams.MATCH_PARENT,
 						LinearLayout.LayoutParams.WRAP_CONTENT)
@@ -116,7 +110,7 @@ public class PlaylistActivity extends AppCompatActivity
 	}
 	private void generateView(){
 		for (Long s : playlists.keySet()){
-			TextView plTitle = new TextView(this);
+			TextView plTitle = new TextView(getContext());
 			plTitle.setLayoutParams( new LinearLayout.LayoutParams(
 							 LinearLayout.LayoutParams.MATCH_PARENT,
 							LinearLayout.LayoutParams.WRAP_CONTENT
@@ -125,13 +119,13 @@ public class PlaylistActivity extends AppCompatActivity
 			plTitle.setTag(s);
 			playlistsView.addView(plTitle);
 		}
-	}
+	}*/
 	private void createNewPlaylist() {
-		LayoutInflater li = LayoutInflater.from(this);
+		LayoutInflater li = LayoutInflater.from(getContext());
 		View promptsView = li.inflate(R.layout.prompt_input, null);
 
 		android.app.AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
-						this);
+						getContext());
 
 		alertDialogBuilder.setView(promptsView);
 
@@ -144,15 +138,15 @@ public class PlaylistActivity extends AppCompatActivity
 										new DialogInterface.OnClickListener() {
 											@Override
 											public void onClick(DialogInterface dialog, int id) {
-												Intent intent = new Intent(getBaseContext(), AddTracksToPlaylist.class);
-												db = new AudioDB(getBaseContext(), R.integer.DATABASE_READ_WRITE_MODE);
+												Intent intent = new Intent(getContext(), AddTracksToPlaylist.class);
+												db = new AudioDB(getContext(), R.integer.DATABASE_READ_WRITE_MODE);
 												String newPlaylist = userInput.getText().toString();
 												Long playlistID = db.createNewPlayList(newPlaylist);
 												print("KEY "+playlistID.toString());
 												intent.putExtra(AudioContract.FeedEntry.PLAYLIST_ID, Long.valueOf(playlistID));
 												playlists.put(playlistID, newPlaylist);
 												plStr.add(newPlaylist);
-												arrayAdapter = new ArrayAdapter<String>(getBaseContext(),android.R.layout.simple_list_item_1,plStr);
+												arrayAdapter = new ArrayAdapter<String>(getContext(),android.R.layout.simple_list_item_1,plStr);
 												playlistsView.setAdapter(arrayAdapter);
 												startActivity(intent);
 											}
@@ -190,55 +184,6 @@ private Map<Long,String> getPlaylists(){
 		} while (cursor.moveToNext());
 	}
 	return pl;
-	}
-	@Override
-	public void onBackPressed() {
-		DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-		if (drawer.isDrawerOpen(GravityCompat.START)) {
-			drawer.closeDrawer(GravityCompat.START);
-		} else {
-			super.onBackPressed();
-		}
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.drawer, menu);
-		return true;
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle action bar item clicks here. The action bar will
-		// automatically handle clicks on the Home/Up button, so long
-		// as you specify a parent activity in AndroidManifest.xml.
-		int id = item.getItemId();
-
-		//noinspection SimplifiableIfStatement
-		if (id == R.id.action_settings) {
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
-	}
-
-	@SuppressWarnings("StatementWithEmptyBody")
-	@Override
-	public boolean onNavigationItemSelected(MenuItem item) {
-		// Handle navigation view item clicks here.
-		int id = item.getItemId();
-
-		if (id == R.id.nav_playlists) {
-			Intent intent = new Intent(this, PlaylistActivity.class);
-			startActivity(intent);
-		} else if (id == R.id.nav_manage) {
-
-
-		}
-
-		DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-		drawer.closeDrawer(GravityCompat.START);
-		return true;
 	}
 }
 

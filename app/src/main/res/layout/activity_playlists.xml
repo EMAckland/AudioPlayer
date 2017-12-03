@@ -1,27 +1,21 @@
 <android.support.constraint.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="emily.ackland.student.curtin.edu.au.audioplayer.PlaylistActivity">
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
 
     <ListView
         android:id="@+id/playlist_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/add_playlistFAB"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="30dp"
-        android:layout_marginEnd="30dp"
-        android:clickable="true"
-        android:scaleX="1.3"
-        android:scaleY="1.3"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/ic_add_black_24dp" />
+    <!--app:srcCompat="@drawable/ic_add_black_24dp" />-->
+</LinearLayout>
 
 </android.support.constraint.ConstraintLayout>

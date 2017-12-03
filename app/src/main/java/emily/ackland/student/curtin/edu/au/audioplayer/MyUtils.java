@@ -1,7 +1,6 @@
 package emily.ackland.student.curtin.edu.au.audioplayer;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
@@ -21,6 +20,7 @@ import android.provider.MediaStore;
 import android.support.annotation.DrawableRes;
 import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.util.TypedValue;
@@ -55,7 +55,7 @@ public class MyUtils {
 		}
 	}
 
-	public static boolean havePermissions(Activity activity, Context ctx, String[] permissions) {
+	public static boolean havePermissions(Fragment activity, Context ctx, String[] permissions) {
 		boolean permission = false;
 		if (ActivityCompat.checkSelfPermission(ctx,
 						Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
@@ -64,9 +64,8 @@ public class MyUtils {
 						ActivityCompat.checkSelfPermission(ctx,
 										Manifest.permission.WAKE_LOCK) != PackageManager.PERMISSION_GRANTED) {
 			permission = false;
-			if (ActivityCompat.shouldShowRequestPermissionRationale(
-							activity, Manifest.permission.READ_EXTERNAL_STORAGE)) {
-				ActivityCompat.requestPermissions(activity, permissions, 1);
+			if (activity.shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+				activity.requestPermissions(permissions, 1);
 			}
 		} else
 			permission = true;

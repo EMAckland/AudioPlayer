@@ -7,18 +7,22 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.support.design.widget.NavigationView;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.MediaController;
 import android.widget.SeekBar;
 import android.widget.TextView;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends DrawerActivity implements MediaController.MediaPlayerControl,
-				NavigationView.OnNavigationItemSelectedListener{
+public class MainActivity extends Fragment {
 	private ListView tracksView;
 	private ArrayList<AudioFile> tracksList = new ArrayList<>();
 	private AudioService audioSrv;
@@ -30,6 +34,44 @@ public class MainActivity extends DrawerActivity implements MediaController.Medi
 	private Handler seekHandler = new Handler();
 	private ImageButton skip_next, skip_prev, play_pause, pause_play;
 	private TextView duration, curr;
+	public MainActivity(){
+
+	}
+	public static Fragment newInstance(Context context) {
+		AlbumsViewFragment f = new AlbumsViewFragment();
+		return f;
+	}
+	@Nullable
+	@Override
+	public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+		ViewGroup root = (ViewGroup) inflater.inflate(R.layout.activity_playlists, null);
+
+		return root;
+	}
+
+	@Override
+	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		tracksView = view.findViewById(R.id.tracks_list);
+		boolean next = true;
+		int bundleID = 0;
+		List<Bundle> bundles = new ArrayList<>();
+		while (next) {
+			if (getContext().getIntent().getBundleExtra("ALBUM" + bundleID) != null) {
+				bundles.add(getIntent().getBundleExtra("ALBUM" + bundleID));
+				bundleID++;
+			} else if(getIntent().getBundleExtra("VIEW ALL" + bundleID) != null){
+				bundles.add(getIntent().getBundleExtra("VIEW ALL" + bundleID));
+			}else
+				next = false;
+		}
+		if (bundles!=null){
+			getAudioFiles(bundles);
+			setTitle(tracksList.get(0).getTitle());
+			viewAdpt = new AudioAdapter(this, tracksList);
+			tracksView.setAdapter(viewAdpt);
+		}
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

@@ -1,5 +1,6 @@
 package emily.ackland.student.curtin.edu.au.audioplayer;
 
+import android.app.Fragment;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -15,7 +16,7 @@ import java.util.Map;
  * Created by Emily on 12/2/2017.
  */
 
-public class AddTracksToPlaylist extends AppCompatActivity {
+public class AddTracksToPlaylist extends Fragment {
 	private ArrayList<AudioFile> tracksList;
 	private String playlist;
 	private PlaylistAdapter viewAdpt;
