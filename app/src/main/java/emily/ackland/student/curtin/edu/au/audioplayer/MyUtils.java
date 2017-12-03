@@ -20,7 +20,7 @@ import android.provider.MediaStore;
 import android.support.annotation.DrawableRes;
 import android.support.graphics.drawable.VectorDrawableCompat;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.util.TypedValue;
@@ -55,7 +55,7 @@ public class MyUtils {
 		}
 	}
 
-	public static boolean havePermissions(Fragment activity, Context ctx, String[] permissions) {
+	public static boolean havePermissions(FragmentActivity activity, Context ctx, String[] permissions) {
 		boolean permission = false;
 		if (ActivityCompat.checkSelfPermission(ctx,
 						Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||

@@ -22,57 +22,57 @@ import android.widget.TableLayout;
 import java.util.ArrayList;
 import java.util.Set;
 
-public class MainDrawerActivity extends FragmentActivity
-				implements NavigationView.OnNavigationItemSelectedListener,
-FragmentActivityInterface{
-	private static final String ALBUMS_FRAGMENT = "ALBUMS_FRAGMENT";
-	private static final String PLAYLISTS_FRAGMENT = "PLAYLISTS_FRAGMENT";
-	private static final String ADD_TRACKS_FRAGMENT = "ADD_TRACKS_FRAGMENT";
-	private TableLayout albumsView;
-	private Set<Album> albumSet;
-	private ArrayList<AudioFile> tracks;
-	private String[] permissions = new String[]{
-					Manifest.permission.READ_EXTERNAL_STORAGE,
-					Manifest.permission.WRITE_EXTERNAL_STORAGE,
-					Manifest.permission.WAKE_LOCK,
-					Manifest.permission.MEDIA_CONTENT_CONTROL
-	};
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main_drawer);
-		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+public abstract class BaseActivity extends FragmentActivity implements FragmentActivityInterface,
+				NavigationView.OnNavigationItemSelectedListener{
 
-		FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.playlist_fab);
-		fab.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				Snackbar.make(view, ".AddTracksToPlaylists", Snackbar.LENGTH_LONG)
-								.setAction("AddTracksToPlaylists", null).show();
-			}
-		});
+	public abstract void onAlbumSelected(Context ctx, View view);
+		  final String ALBUMS_FRAGMENT = "ALBUMS_FRAGMENT";
+		  final String PLAYLISTS_FRAGMENT = "PLAYLISTS_FRAGMENT";
+		  final String ADD_TRACKS_FRAGMENT = "ADD_TRACKS_FRAGMENT";
+		 TableLayout albumsView;
+		 Set<Album> albumSet;
+		 ArrayList<AudioFile> tracks;
+		 String[] permissions = new String[]{
+						Manifest.permission.READ_EXTERNAL_STORAGE,
+						Manifest.permission.WRITE_EXTERNAL_STORAGE,
+						Manifest.permission.WAKE_LOCK,
+						Manifest.permission.MEDIA_CONTENT_CONTROL
+		};
+		@Override
+		protected void onCreate(Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+			setContentView(R.layout.activity_main_drawer);
+			Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 
-		DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-		ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-						this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-		drawer.addDrawerListener(toggle);
-		toggle.syncState();
-		NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-		navigationView.setNavigationItemSelectedListener(this);
-		init();
-	}
-	@Override
-	public void onStart(){
-		super.onStart();
-		if(MyUtils.havePermissions(MainDrawerActivity.this,this, permissions)){
-			FragmentTransaction tx = getSupportFragmentManager().beginTransaction();
-			tx.replace(R.id.main_drawer_fram, Fragment.instantiate(MainDrawerActivity.this,
-							ALBUMS_FRAGMENT));
-			tx.commit();
+			FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.playlist_fab);
+			fab.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View view) {
+					Snackbar.make(view, ".AddTracksToPlaylists", Snackbar.LENGTH_LONG)
+									.setAction("AddTracksToPlaylists", null).show();
+				}
+			});
+
+			DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+			ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+							this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+			drawer.addDrawerListener(toggle);
+			toggle.syncState();
+			NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+			navigationView.setNavigationItemSelectedListener(this);
+			init();
 		}
-
-		init();
-	}
+		@Override
+		public void onStart(){
+			super.onStart();
+			if(MyUtils.havePermissions(BaseActivity.this,this, permissions)){
+				FragmentTransaction tx = getSupportFragmentManager().beginTransaction();
+				tx.replace(R.id.main_drawer_fram, Fragment.instantiate(BaseActivity.this,
+								ALBUMS_FRAGMENT));
+				tx.commit();
+			}
+			init();
+		}
 	private void init(){
 		albumSet = MyUtils.getAlbums(this);
 		tracks = MyUtils.getTracks(this,null);
@@ -147,8 +147,4 @@ FragmentActivityInterface{
 		super.onUserInteraction();
 	}
 
-	@Override
-	public void onAlbumSelected(Context ctx, View view) {
-
-	}
 }

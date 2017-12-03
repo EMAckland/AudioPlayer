@@ -6,9 +6,13 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -22,8 +26,15 @@ import java.util.Set;
  * Created by Emily on 12/3/2017.
  */
 
-public class AlbumsViewFragment extends Fragment {
+public class AlbumsViewFragment extends Fragment implements
+				FragmentActivityInterface{
 	private TableLayout albumsView;
+
+	@Override
+	public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+		return false;
+	}
+
 	private Set<Album> albumSet;
 	private ArrayList<AudioFile> tracks;
 	private String[] permissions = new String[]{
@@ -48,8 +59,8 @@ public class AlbumsViewFragment extends Fragment {
 	}
 	@Override
 	public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-
-
+		FragmentManager manager = getFragmentManager();
+		manager.
 		if(MyUtils.havePermissions(AlbumsViewFragment.this, getContext(), permissions)){
 			albumsView = (TableLayout)view.findViewById(R.id.albums_table);
 			MyUtils.getTracks(getContext(),null);
@@ -78,6 +89,8 @@ public class AlbumsViewFragment extends Fragment {
 			albumArt.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View view) {
+					MainDrawerActivity parent = (FragmentActivity)getActivity();
+
 					ArrayList<AudioFile> tracks = ((Album)view.getTag()).getTracks();
 					Intent intent = new Intent(getContext(), MainActivity.class);
 					MyUtils.bundleTracks(tracks,intent,"ALBUM");
@@ -105,5 +118,10 @@ public class AlbumsViewFragment extends Fragment {
 				generateAlbumView();
 				break;
 		}
+	}
+
+	@Override
+	public void onAlbumSelected(Context ctx, View view) {
+
 	}
 }

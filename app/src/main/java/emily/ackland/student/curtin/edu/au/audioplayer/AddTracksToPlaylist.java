@@ -1,13 +1,17 @@
 package emily.ackland.student.curtin.edu.au.audioplayer;
 
-import android.app.Fragment;
+
+import android.content.Context;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentManager;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ListView;
-
+import android.support.v4.app.Fragment;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +20,7 @@ import java.util.Map;
  * Created by Emily on 12/2/2017.
  */
 
-public class AddTracksToPlaylist extends Fragment {
+public class AddTracksToPlaylist extends Fragment{
 	private ArrayList<AudioFile> tracksList;
 	private String playlist;
 	private PlaylistAdapter viewAdpt;
@@ -26,20 +30,34 @@ public class AddTracksToPlaylist extends Fragment {
 	private Button doneButton;
 	private AudioDB db;
 	private String plID;
-	protected void onCreate(Bundle savedInst) {
-		super.onCreate(savedInst);
-		setContentView(R.layout.select_tracks_activity);
-		db = new AudioDB(this, R.integer.DATABASE_READ_WRITE_MODE);
-		init();
+
+	public AddTracksToPlaylist(){
+
 	}
-	private void init() {
-		plID =((Bundle) (getIntent().getExtras())).getString(AudioContract.FeedEntry.TRACK_ID);
+	public static Fragment newInstance(Context context) {
+		AddTracksToPlaylist f = new AddTracksToPlaylist();
+		return f;
+	}
+	@Nullable
+	@Override
+	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
+		ViewGroup root = (ViewGroup) inflater.inflate(R.layout.activity_playlists, null);
+		return root;
+	}
+	@Override
+	public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+
+		db = new AudioDB(getContext(), R.integer.DATABASE_READ_WRITE_MODE);
+		init(view);
+	}
+	private void init(View view) {
+		//plID =((Bundle) (getIntent().getExtras())).getString(AudioContract.FeedEntry.TRACK_ID);
 		//playlist = getIntent().getExtras().getString("PLAYLIST NAME");
-		tracksListView=findViewById(R.id.checkable_list);
-		tracksList = MyUtils.getTracks(this,null);
-		viewAdpt = new PlaylistAdapter(this, tracksList);
+		tracksListView=view.findViewById(R.id.checkable_list);
+		tracksList = MyUtils.getTracks(getContext(),null);
+		viewAdpt = new PlaylistAdapter(getContext(), tracksList);
 		tracksListView.setAdapter(viewAdpt);
-		doneButton = findViewById(R.id.donebutton);
+		doneButton = view.findViewById(R.id.donebutton);
 		doneButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
@@ -55,6 +73,7 @@ public class AddTracksToPlaylist extends Fragment {
 			plMap.put(AudioContract.FeedEntry.TRACK_ID, plID);
 		}
 		db.insertIntoPlayList(plMap);
-		super.onBackPressed();
+		FragmentManager manager = getFragmentManager();
+		manager.popBackStack();
 	}
 }
