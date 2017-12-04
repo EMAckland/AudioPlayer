@@ -6,13 +6,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -27,14 +24,9 @@ import java.util.Set;
  */
 
 public class AlbumsViewFragment extends Fragment implements
-				FragmentActivityInterface{
+				 ManagerInterface{
 	private TableLayout albumsView;
-
-	@Override
-	public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-		return false;
-	}
-
+	private Manager manager;
 	private Set<Album> albumSet;
 	private ArrayList<AudioFile> tracks;
 	private String[] permissions = new String[]{
@@ -60,12 +52,10 @@ public class AlbumsViewFragment extends Fragment implements
 	@Override
 	public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
 		FragmentManager manager = getFragmentManager();
-		manager.
-		if(MyUtils.havePermissions(AlbumsViewFragment.this, getContext(), permissions)){
-			albumsView = (TableLayout)view.findViewById(R.id.albums_table);
-			MyUtils.getTracks(getContext(),null);
-			generateAlbumView();
-		}
+		MyUtils.getTracks(getContext(),null);
+		albumsView = view.findViewById(R.id.albums_table);
+		generateAlbumView();
+
 	}
 
 	private void generateAlbumView() {
@@ -89,12 +79,10 @@ public class AlbumsViewFragment extends Fragment implements
 			albumArt.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View view) {
-					MainDrawerActivity parent = (FragmentActivity)getActivity();
-
 					ArrayList<AudioFile> tracks = ((Album)view.getTag()).getTracks();
 					Intent intent = new Intent(getContext(), MainActivity.class);
 					MyUtils.bundleTracks(tracks,intent,"ALBUM");
-					startActivity(intent);
+					((BaseActivity)getActivity()).setAlbumTracks(view, tracks);
 				}
 			});
 			albumArt.setImageBitmap(a.getAlbumArt(getContext()));
@@ -121,7 +109,7 @@ public class AlbumsViewFragment extends Fragment implements
 	}
 
 	@Override
-	public void onAlbumSelected(Context ctx, View view) {
-
+	public void attachManager(Manager manager) {
+		this.manager = manager;
 	}
 }

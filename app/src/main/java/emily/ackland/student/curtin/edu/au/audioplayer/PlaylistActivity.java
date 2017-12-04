@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,7 +28,7 @@ import static emily.ackland.student.curtin.edu.au.audioplayer.MyUtils.print;
  */
 
 public class PlaylistActivity extends Fragment {
-	FloatingActionButton addNewPlFAB;
+
 	ListView playlistsView;
 	AudioDB db;
 	Long playlistID;
@@ -54,15 +53,6 @@ public class PlaylistActivity extends Fragment {
 	@Override
 	public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
 		plStr = new ArrayList<>();
-		addNewPlFAB = view.findViewById(R.id.add_playlistFAB);
-		playlistsView = (ListView) view.findViewById(R.id.playlist_list);
-		db = new AudioDB(getContext(), R.integer.DATABASE_READ_WRITE_MODE);
-		addNewPlFAB.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				createNewPlaylist();
-			}
-		});
 		playlists = getPlaylists();
 		arrayAdapter = new ArrayAdapter<String>(getContext(),
 						android.R.layout.simple_list_item_1,plStr);

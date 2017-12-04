@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="emily.ackland.student.curtin.edu.au.audioplayer.MainDrawerActivity">
+    tools:context="emily.ackland.student.curtin.edu.au.audioplayer.BaseActivity">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
@@ -17,8 +18,7 @@
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
             android:theme="@style/Theme.Design.NoActionBar"
-            app:popupTheme="@style/PopupOverlay"
-            a/>
+            app:popupTheme="@style/PopupOverlay" />
 
     </android.support.design.widget.AppBarLayout>
 
@@ -28,7 +28,8 @@
         android:id="@+id/playlist_fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
+        android:layout_gravity="top|end"
+        android:translationY="50dp"
         android:layout_margin="@dimen/fab_margin"
         app:srcCompat="@drawable/ic_playlist_add_black_24dp" />
 </android.support.design.widget.CoordinatorLayout>
