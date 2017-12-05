@@ -14,6 +14,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -24,6 +25,7 @@ public class AudioService extends Service implements MediaPlayer.OnPreparedListe
         MediaPlayer.OnErrorListener,MediaPlayer.OnCompletionListener {
     private MediaPlayer player;
     private List<AudioFile> tracks;
+    private List<Long> trackIDs;
     private int trackPosn;
     private final IBinder audioBind = new AudioBinder();
     private int pausePos=0;
@@ -40,8 +42,23 @@ public class AudioService extends Service implements MediaPlayer.OnPreparedListe
             player.start();
         }
     }
+
     public void setTracks(List<AudioFile> inTracks) {tracks = inTracks;}
     public void setTrack(int trackIdx) {trackPosn = trackIdx;}
+
+    public void setTracks(ArrayList<Long> trackIDs){
+        List<AudioFile> newtracks = new ArrayList<>();
+        this.trackIDs = trackIDs;
+        for (AudioFile t : tracks){
+            for(Long l : trackIDs){
+                if(l.equals(t.getID())){
+                    newtracks.add(t);
+                }
+            }
+        }
+        tracks=newtracks;
+        trackPosn=0;
+    }
 
     public void initAudioPlayer() {
         player.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);

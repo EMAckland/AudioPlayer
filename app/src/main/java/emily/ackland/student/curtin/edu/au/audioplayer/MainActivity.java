@@ -18,13 +18,18 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 public class MainActivity extends Fragment{
+	final String ALBUMS_FRAGMENT = "emily.ackland.student.curtin.edu.au.audioplayer.AlbumsViewFragment";
+	final String PLAYLISTS_FRAGMENT = "emily.ackland.student.curtin.edu.au.audioplayer.PlaylistActivity";
+	final String ADD_TRACKS_FRAGMENT = "emily.ackland.student.curtin.edu.au.audioplayer.AddTracksToPlaylist";
+	final String TRACKS_FRAGMENT = "emily.ackland.student.curtin.edu.au.audioplayer.MainActivity";
+	final String BASE_ACTIVITY = ".BaseAcitivity";
 	private ListView tracksView;
 	private ArrayList<AudioFile> tracksList = new ArrayList<>();
 	private AudioService audioSrv;
 	private Intent playIntent;
 	private boolean audioBound = false;
 	private boolean paused = false, playbackPaused = false;
-	private AudioAdapter viewAdpt;
+	private TracksAdapter viewAdpt;
 	private SeekBar seekBar;
 	private Handler seekHandler = new Handler();
 	private ImageButton skip_next, skip_prev, play_pause, pause_play;
@@ -36,7 +41,7 @@ public class MainActivity extends Fragment{
 	}
 
 	public static Fragment newInstance(Context context) {
-		MainActivity f = new MainActivity();
+		AlbumsViewFragment f = new AlbumsViewFragment();
 		return f;
 	}
 
@@ -51,14 +56,10 @@ public class MainActivity extends Fragment{
 	public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
 		this.view = view;
 		baseActivity = (BaseActivity)getActivity();
-		tracksList = baseActivity.getAlbumTracks();
-		viewAdpt = new AudioAdapter(getContext(), tracksList);
+		tracksView = view.findViewById(R.id.tracks_list);
+		tracksList = baseActivity.getCurrTracks();
+		viewAdpt = new TracksAdapter(getContext(), tracksList);
 		tracksView.setAdapter(viewAdpt);
 
-	}
-
-
-	public void trackPicked(View view) {
-		baseActivity.onTrackPicked(view);
 	}
 }

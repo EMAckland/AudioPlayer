@@ -4,7 +4,6 @@ import android.Manifest;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -14,7 +13,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.VectorDrawable;
 import android.net.Uri;
-import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.support.annotation.DrawableRes;
@@ -97,20 +95,29 @@ public class MyUtils {
 	}
 
 	public static Bitmap getAlbumart(Context context, Long album_id) {
+		print(album_id.toString());
 		Bitmap albumArtBitMap = null;
 		BitmapFactory.Options options = new BitmapFactory.Options();
 		try {
 			final Uri sArtworkUri = Uri
 							.parse("content://media/external/audio/albumart");
 			Uri uri = ContentUris.withAppendedId(sArtworkUri, album_id);
-			ParcelFileDescriptor pfd = context.getContentResolver()
-							.openFileDescriptor(uri, "r");
-			if (pfd != null) {
-				FileDescriptor fd = pfd.getFileDescriptor();
-				albumArtBitMap = BitmapFactory.decodeFileDescriptor(fd, null,
-								options);
-				pfd = null;
-				fd = null;
+			print(uri.toString());
+			if (uri==null){
+				getBitmapFromDrawable(context, R.drawable.ic_wallpaper_black_24dp);
+			}else {
+				ParcelFileDescriptor pfd = context.getContentResolver()
+								.openFileDescriptor(uri, "r");
+				if (pfd != null) {
+					FileDescriptor fd = pfd.getFileDescriptor();
+					albumArtBitMap = BitmapFactory.decodeFileDescriptor(fd, null,
+									options);
+					if (fd==null){
+						albumArtBitMap=getBitmapFromDrawable(context,R.drawable.ic_wallpaper_black_24dp);
+					}
+					pfd = null;
+					fd = null;
+				}
 			}
 		} catch (Error ee) {
 		} catch (Exception e) {
@@ -154,6 +161,7 @@ public class MyUtils {
 				tracksList.add(track);
 			} while (audioCursor.moveToNext());
 		}
+		audioCursor.close();
 		return tracksList;
 	}
 
@@ -257,27 +265,39 @@ public class MyUtils {
 		for (Album album : albumSet){
 			album.setTracks(mapAlbumToTracks.get(album.getTitle()));
 		}
+		audioCursor.close();
+		albumCursor.close();
 		return albumSet;
 	}
 	public static int getDIP(Context ctx, int val){
 		return   (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, val,
 						ctx.getResources().getDisplayMetrics());
 	}
-	public static void bundleTracks(ArrayList<AudioFile> tracks, Intent intent, final String bundleType){
-		List<Bundle> bundles = new ArrayList<>();
-		for (AudioFile f : tracks){
-			Bundle b = new Bundle();
-			b.putString("ARTIST", f.getArtist());
-			b.putString("ALBUM", f.getAlbum());
-			b.putString("DURATION", f.getDuration());
-			b.putString("TITLE", f.getTitle());
-			b.putLong("ID", f.getID());
-			bundles.add(b);
-		}
-		int bundleID = 0;
-		for (Bundle b : bundles) {
-			intent.putExtra(bundleType + bundleID, b);
-			bundleID++;
-		}
+
+	public static List<String> getPlaylistFromDB(AudioDB db, String[] playlistID){
+		List<String> pl = new ArrayList<>();
+		//("select * from " + SQLiteHelper.TABLE_NAME + "  where _id = ?", selectionArgs);
+		Cursor cursor = db.query(
+						AudioContract.FeedEntry.PLAYLIST_TRACKS_TABLE,
+						new String[]{"TRACK_ID"},
+						"PLAYLIST_ID" + " =?",
+						playlistID,
+						null,
+						null,
+						null
+		);
+		Log.v("Cursor", "Cursor is" + cursor);
+		if (cursor!=null)
+			if (cursor != null && cursor.moveToFirst()) {
+				int trackCol = cursor.getColumnIndex(AudioContract.FeedEntry.TRACK_ID);
+
+				do {
+					pl.add(cursor.getString(trackCol));
+					print("PL TRACK" + cursor.getString(trackCol));
+
+				} while (cursor.moveToNext());
+			}
+			cursor.close();
+		return pl;
 	}
 }

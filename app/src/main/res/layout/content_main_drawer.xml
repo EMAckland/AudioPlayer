@@ -13,63 +13,96 @@
         android:id="@+id/main_drawer_fram"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_constraintBottom_toTopOf="@id/Media_bar"
- />
-    <LinearLayout
+        app:layout_constraintBottom_toTopOf="@id/Media_bar" />
+
+
+    <android.support.constraint.ConstraintLayout
         android:id="@+id/Media_bar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="60dp"
         android:background="#111"
-        android:orientation="vertical"
-        app:layout_constraintStart_toEndOf="@id/main_drawer_fram"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@id/main_drawer_fram">
+        app:layout_constraintBottom_toTopOf="@id/seek_bar"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0"
+        app:layout_constraintBottom_toBottomOf="parent">
 
-        <LinearLayout
-            android:id="@+id/linearLayout3"
-            android:layout_width="match_parent"
-            android:layout_height="46dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginStart="8dp"
-            android:orientation="horizontal"
-            app:layout_constraintEnd_toEndOf="parent"
+        <android.support.v7.widget.AppCompatImageButton
+            android:id="@+id/skip_prev"
+            android:layout_width="80dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            app:layout_constraintTop_toTopOf="parent"
+
+            app:layout_constraintLeft_toRightOf="@id/skip_prev"
+            app:layout_constraintRight_toLeftOf="@id/play_pause"
             app:layout_constraintHorizontal_bias="1.0"
+            app:srcCompat="@drawable/ic_skip_previous_black_24dp" />
+
+  <!--      <android.support.v7.widget.AppCompatImageButton
+            android:id="@+id/pause_play"
+            android:layout_width="80dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintstart_toEndOf="@id/skip_prev"
+            app:layout_constraintLeft_toRightOf="@id/skip_prev"
+            app:layout_constraintRight_toLeftOf="@id/play_pause"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:srcCompat="@drawable/ic_pause_black_24dp" />-->
+
+        <android.support.v7.widget.AppCompatImageButton
+            android:id="@+id/play_pause"
+            android:layout_width="80dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            android:overScrollMode="always"
+            app:layout_constraintRight_toLeftOf="@id/skip_next"
+            app:srcCompat="@drawable/ic_play_arrow_black_24dp" />
 
-            <ImageButton
-                android:id="@+id/skip_prev"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                app:srcCompat="@drawable/ic_skip_previous_black_24dp" />
+        <android.support.v7.widget.AppCompatImageButton
+            android:id="@+id/skip_next"
+            android:layout_width="80dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintRight_toLeftOf="@id/play_pause"
+            app:layout_constraintStart_toEndOf="@id/play_pause"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_skip_next_black_24dp" />
 
-            <ImageButton
-                android:id="@+id/pause_play"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                app:srcCompat="@drawable/ic_pause_black_24dp" />
+        <TextView
+            android:id="@+id/current_position"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#fff"
+            app:layout_constraintTop_toBottomOf="@id/skip_prev" />
 
-            <ImageButton
-                android:id="@+id/play_pause"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:overScrollMode="always"
-                app:srcCompat="@drawable/ic_play_arrow_black_24dp" />
+        <TextView
+            android:id="@+id/track_duration"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="viewEnd"
+            android:textColor="#fff"
+            app:layout_constraintTop_toBottomOf="@id/skip_next" />
 
-            <ImageButton
-                android:id="@+id/skip_next"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                app:srcCompat="@drawable/ic_skip_next_black_24dp" />
-        </LinearLayout>
+    </android.support.constraint.ConstraintLayout>
 
-        <LinearLayout
+    <SeekBar
+        android:id="@+id/seek_bar"
+        android:layout_width="match_parent"
+        android:layout_height="21dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintVertical_bias="0.0"
+        android:background="#111"/>
+<!--        <LinearLayout
             android:id="@+id/linearLayout2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -91,8 +124,8 @@
                 android:layout_height="wrap_content"
                 android:textAlignment="viewEnd"
                 android:textColor="#fff" />
-        </LinearLayout>
-
+        </LinearLayout>-->
+<!--
         <SeekBar
             android:id="@+id/seek_bar"
             android:layout_width="match_parent"
@@ -104,6 +137,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/linearLayout2" />
-    </LinearLayout>
+    </LinearLayout>-->
 
 </android.support.constraint.ConstraintLayout>

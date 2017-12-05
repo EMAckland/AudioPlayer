@@ -2,7 +2,6 @@ package emily.ackland.student.curtin.edu.au.audioplayer;
 
 import android.Manifest;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -23,8 +22,12 @@ import java.util.Set;
  * Created by Emily on 12/3/2017.
  */
 
-public class AlbumsViewFragment extends Fragment implements
-				 ManagerInterface{
+public class AlbumsViewFragment extends Fragment {
+	final String ALBUMS_FRAGMENT = "emily.ackland.student.curtin.edu.au.audioplayer.AlbumsViewFragment";
+	final String PLAYLISTS_FRAGMENT = "emily.ackland.student.curtin.edu.au.audioplayer.PlaylistActivity";
+	final String ADD_TRACKS_FRAGMENT = "emily.ackland.student.curtin.edu.au.audioplayer.AddTracksToPlaylist";
+	final String TRACKS_FRAGMENT = "emily.ackland.student.curtin.edu.au.audioplayer.MainActivity";
+	final String BASE_ACTIVITY = ".BaseAcitivity";
 	private TableLayout albumsView;
 	private Manager manager;
 	private Set<Album> albumSet;
@@ -80,9 +83,11 @@ public class AlbumsViewFragment extends Fragment implements
 				@Override
 				public void onClick(View view) {
 					ArrayList<AudioFile> tracks = ((Album)view.getTag()).getTracks();
-					Intent intent = new Intent(getContext(), MainActivity.class);
-					MyUtils.bundleTracks(tracks,intent,"ALBUM");
+					for (AudioFile a : tracks)
+						MyUtils.print("TRACKS "+a.getTitle());
+					((BaseActivity)getActivity()).setTracksSource(ALBUMS_FRAGMENT);
 					((BaseActivity)getActivity()).setAlbumTracks(view, tracks);
+					((BaseActivity)getActivity()).loadNewFragmentWithBackstack(TRACKS_FRAGMENT,BASE_ACTIVITY);
 				}
 			});
 			albumArt.setImageBitmap(a.getAlbumArt(getContext()));
@@ -108,8 +113,4 @@ public class AlbumsViewFragment extends Fragment implements
 		}
 	}
 
-	@Override
-	public void attachManager(Manager manager) {
-		this.manager = manager;
-	}
 }
