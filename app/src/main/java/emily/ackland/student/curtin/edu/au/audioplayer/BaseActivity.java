@@ -10,21 +10,20 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.MediaController;
 import android.widget.SeekBar;
 import android.widget.TableLayout;
@@ -37,7 +36,7 @@ import java.util.Set;
 
 import static emily.ackland.student.curtin.edu.au.audioplayer.MyUtils.print;
 
-public class BaseActivity extends FragmentActivity implements
+public class BaseActivity extends AppCompatActivity implements
 				NavigationView.OnNavigationItemSelectedListener, MediaController.MediaPlayerControl {
 	Manager manager;
 	final String ALBUMS_FRAGMENT = "emily.ackland.student.curtin.edu.au.audioplayer.AlbumsViewFragment";
@@ -51,7 +50,7 @@ public class BaseActivity extends FragmentActivity implements
 	private boolean paused = true;
 	private SeekBar seekBar;
 	private Handler seekHandler = new Handler();
-	private ImageButton skip_next, skip_prev, play_pause, pause_play;
+	private ImageView skip_next, skip_prev, play_pause, pause_play;
 	private TextView duration, curr;
 	int menuID, menuDrawable;
 	boolean updateMenu = false;
@@ -64,12 +63,13 @@ public class BaseActivity extends FragmentActivity implements
 	ArrayList<AudioFile> playlistTracks;
 	ArrayList<String> playlistsStr;
 	String currPlaylist;
-	FloatingActionButton fab;
+	boolean addingTracks = false;
 	AudioDB db;
 	Map<String,String> plKeystoName;
-
+	private int addIcon = R.drawable.ic_playlist_add_black_24dp;
+	private int doneIcon = R.drawable.ic_done_black_24dp;
 	Map<String,List<String>> plIDtoTracks;
-	String fabState = BASE_ACTIVITY;
+
 	String[] permissions = new String[]{
 					Manifest.permission.READ_EXTERNAL_STORAGE,
 					Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -83,27 +83,15 @@ public class BaseActivity extends FragmentActivity implements
 		db = new AudioDB(this, R.integer.DATABASE_READ_WRITE_MODE);
 		plKeystoName = db.getPlaylistsFromDB();
 		playlistsStr = new ArrayList<>();
-		for(String s : plKeystoName.keySet())
-			playlistsStr.add(s);
+		playlistsStr.addAll(plKeystoName.keySet());
 		setContentView(R.layout.activity_main_drawer);
 		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-
-		fab = (FloatingActionButton) findViewById(R.id.playlist_fab);
-		fab.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				if (fabState.equals(ADD_TRACKS_FRAGMENT)){
-					onFABDone();
-				}else
-					onFABAddNewPlaylist();
-			}
-		});
+		setSupportActionBar(toolbar);
 		play_pause = findViewById(R.id.play_pause);
-		pause_play = findViewById(R.id.pause_play);
 		skip_next = findViewById(R.id.skip_next);
 		skip_prev = findViewById(R.id.skip_prev);
-		duration = findViewById(R.id.track_duration);
-		curr = findViewById(R.id.current_position);
+		duration = findViewById(R.id.end_time);
+		curr = findViewById(R.id.curr_time);
 		seekBar = findViewById(R.id.seek_bar);
 		seekBar.setEnabled(true);
 		DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -123,7 +111,7 @@ public class BaseActivity extends FragmentActivity implements
 		init();
 	}
 
-	private void onFABAddNewPlaylist(){
+	private void onAddNewPlaylist(){
 		LayoutInflater li = LayoutInflater.from(this);
 		View promptsView = li.inflate(R.layout.prompt_input, null);
 		android.app.AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
@@ -142,8 +130,8 @@ public class BaseActivity extends FragmentActivity implements
 												print("KEY "+currPlaylist);
 												plKeystoName.put(currPlaylist, newPlaylist);
 												playlistsStr.add(currPlaylist);
-												fabState = ADD_TRACKS_FRAGMENT;
-												fab.setImageResource(R.drawable.ic_done_black_24dp);
+													addingTracks = true;
+													invalidateOptionsMenu();
 												loadNewFragmentWithBackstack(ADD_TRACKS_FRAGMENT, BASE_ACTIVITY);
 											}
 										})
@@ -156,25 +144,20 @@ public class BaseActivity extends FragmentActivity implements
 										});
 		AlertDialog alertDialog = alertDialogBuilder.create();
 		alertDialog.show();
+
 	}
-	public void onFABDone(){
-		fabState = BASE_ACTIVITY;
+	public void onDone(){
+		addingTracks = false;
 		getSupportFragmentManager().executePendingTransactions();
-		fab.setImageResource(R.drawable.ic_playlist_add_black_36dp);
+		invalidateOptionsMenu();
 		((AddTracksToPlaylist)(getSupportFragmentManager().findFragmentByTag(ADD_TRACKS_FRAGMENT))).savePlTracks();
 		getSupportFragmentManager().popBackStack();
-
 	}
 	public String getCurrPlaylist(){
 		return currPlaylist;
 	}
-	public void setTracksSource(String source){
-		switch (source) {
-			case ALBUMS_FRAGMENT:
-				isPlaylist = false;
-			case PLAYLISTS_FRAGMENT:
-				isPlaylist = true;
-		}
+	public void setTracksSource(boolean source){
+		isPlaylist = source;
 	}
 	public void loadNewFragment(String fragment){
 		FragmentTransaction tx = getSupportFragmentManager().beginTransaction();
@@ -186,12 +169,6 @@ public class BaseActivity extends FragmentActivity implements
 		FragmentTransaction tx = getSupportFragmentManager().beginTransaction();
 		tx.replace(R.id.main_drawer_fram, Fragment.instantiate(BaseActivity.this, fragment),
 						fragment).addToBackStack(backstack).commit();
-	}
-	public void changeToolbarState(int id, int drawable){
-		updateMenu = true;
-		menuID = id;
-		menuDrawable = drawable;
-		invalidateOptionsMenu();
 	}
 
 	private ServiceConnection audioConnection = new ServiceConnection() {
@@ -225,6 +202,9 @@ public class BaseActivity extends FragmentActivity implements
 		}
 	}
 	public ArrayList<AudioFile> getCurrTracks(){
+		for (AudioFile t : albumTracksList)
+			print(t.getTitle());
+		print((""+ isPlaylist));
 		if(isPlaylist)
 			return playlistTracks;
 		else
@@ -245,14 +225,13 @@ public class BaseActivity extends FragmentActivity implements
 			}
 		}
 	}
-	public void finishedSelectingPLTracks(View view) {
+	public void finishedSelectingPLTracks() {
 		ArrayList<AudioFile> plTracks =
 						((AddTracksToPlaylist)(getSupportFragmentManager().findFragmentByTag(ADD_TRACKS_FRAGMENT))).getNewPlaylistTracks();
 		for(AudioFile t:plTracks){
 			db.insertIntoPlayList(currPlaylist, ((Long)t.getID()).toString());
 		}
-
-		updateMenu = false;
+		addingTracks = false;
 		invalidateOptionsMenu();
 		getSupportFragmentManager().popBackStack();
 	}
@@ -262,22 +241,22 @@ public class BaseActivity extends FragmentActivity implements
 	@Override
 	protected void onPause() {
 		super.onPause();
+		paused = true;
 		seekHandler.removeCallbacks(run);
 		updateView();
-		paused = true;
+
 	}
 
 	@Override
 	protected void onResume() {
 		super.onResume();
-		if (paused) {
 			paused = false;
 			updateSeek();
-		}
 	}
 
 	@Override
 	protected void onStop() {
+		seekHandler.removeCallbacks(run);
 		super.onStop();
 	}
 
@@ -319,7 +298,7 @@ public class BaseActivity extends FragmentActivity implements
 
 	@Override
 	public boolean isPlaying() {
-		return false;
+		return !paused;
 	}
 
 	@Override
@@ -329,12 +308,12 @@ public class BaseActivity extends FragmentActivity implements
 
 	@Override
 	public boolean canSeekBackward() {
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean canSeekForward() {
-		return false;
+		return true;
 	}
 
 	@Override
@@ -357,18 +336,16 @@ public class BaseActivity extends FragmentActivity implements
 	private void updateView() {
 		seekBar.setMax(getDuration());
 		if (paused){
-			play_pause.setImageResource(R.drawable.ic_pause_black_24dp);
-		}else
 			play_pause.setImageResource(R.drawable.ic_play_arrow_black_24dp);
+		}else
+			play_pause.setImageResource(R.drawable.ic_pause_black_24dp);
 		duration.setText(MyUtils.timeInMilliSecToFormattedTimeMM_SS(getDuration()));
 		curr.setText(R.string.track_start);
 	}
 
 	private void playNext() {
+		paused = false;
 		audioSrv.playNext();
-		if (paused) {
-			paused = false;
-		}
 	}
 
 
@@ -387,23 +364,25 @@ public class BaseActivity extends FragmentActivity implements
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		if(updateMenu) {
-			menu.findItem(menuID).setIcon(menuDrawable);
-		}
-		getMenuInflater().inflate(R.menu.main_drawer, menu);
+			if(addingTracks){
+				getMenuInflater().inflate(R.menu.toolbardone, menu);
+			}else
+				getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 		}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle action bar item clicks here. The action bar will
-		// automatically handle clicks on the Home/Up button, so long
-		// as you specify a parent activity in AndroidManifest.xml.
+
 		int id = item.getItemId();
 
-		//noinspection SimplifiableIfStatement
-		if (id == R.id.action_settings) {
-			return true;
+		if (id == R.id.action_add_playlsit) {
+			addingTracks = true;
+			onAddNewPlaylist();
+
+		} else if (id == R.id.action_done){
+			addingTracks  = false;
+			finishedSelectingPLTracks();
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -464,14 +443,14 @@ public class BaseActivity extends FragmentActivity implements
 			@Override
 			public void onClick(View v) {
 				if (paused){
+					paused=false;
 					audioSrv.play();
 					updateSeek();
 					updateView();
-					paused=false;
 				}else {
+					paused=true;
 					audioSrv.pausePlayer();
 					updateView();
-					paused=true;
 				}
 			}
 		});
@@ -494,10 +473,9 @@ public class BaseActivity extends FragmentActivity implements
 	}
 
 	private void playPrev() {
+		paused = false;
 		audioSrv.playPrev();
-		if (paused) {
-			paused = false;
-		}
+
 	}
 
 	Runnable run = new Runnable() {
@@ -518,12 +496,12 @@ public class BaseActivity extends FragmentActivity implements
 	public ArrayList<AudioFile> getAudioFiles() {
 		return tracksList;
 	}
+
 	public void trackPicked(View view) {
+		paused = false;
 		audioSrv.setTrack(Integer.parseInt(view.getTag().toString()));
 		audioSrv.playAudio();
-		if (paused) {
-			paused = false;
-		}
+	((ImageView) findViewById(R.id.play_pause)).setImageResource(R.drawable.ic_pause_black_24dp);
 		updateView();
 		updateSeek();
 

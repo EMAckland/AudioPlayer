@@ -4,8 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    tools:context=".MainActivity"
+    tools:context=".BaseActivity"
     android:onClick="trackPicked"
+    android:maxHeight="@android:dimen/app_icon_size"
     android:orientation="vertical"
     android:padding="5dp">
     <TextView

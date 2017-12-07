@@ -21,7 +21,6 @@ public class TracksAdapter extends BaseAdapter {
 
 		public TracksAdapter(Context ctx, ArrayList<AudioFile> inTracks) {
 			tracks = inTracks;
-			selectedTracks = new ArrayList<>();
 			audioInfl = LayoutInflater.from(ctx);
 			this.ctx = ctx;
 		}
@@ -39,9 +38,7 @@ public class TracksAdapter extends BaseAdapter {
 			// TODO Auto-generated method stub
 			return 0;
 		}
-		public ArrayList<AudioFile> getSelectedTracks(){
-			return selectedTracks;
-		}
+
 
 		public View getView(int position, View convertView, ViewGroup parent) {
 			//map to song select_tracks_activity

@@ -57,12 +57,15 @@ public class PlaylistAdapter extends BaseAdapter {
 			@Override
 			public void onClick(View view) {
 				final boolean isChecked = ((CheckBox)view).isChecked();
-				if(isChecked)
+				if(isChecked){
 					selectedTracks.add((AudioFile)view.getTag());
+					((CheckBox)view).setChecked(true);
+				}
 				else {
 					for(AudioFile t : tracks){
 						if(view.getTag().equals(t)){
 							selectedTracks.remove(t);
+							((CheckBox)view).setChecked(false);
 						}
 					}
 				}

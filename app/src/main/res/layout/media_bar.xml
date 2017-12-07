@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<android.support.constraint.ConstraintLayout
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="false"
+    android:theme="@style/AppTheme.NoActionBar"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="emily.ackland.student.curtin.edu.au.audioplayer.BaseActivity"
+    tools:showIn="@layout/app_bar_main_drawer"
+    android:id="@+id/base"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+<com.google.android.flexbox.FlexboxLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/media_bar"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="fill"
+    android:background="@android:color/holo_red_dark"
+    app:flexDirection="row"
+    app:flexWrap="wrap"
+    app:justifyContent="center"
+    app:layout_anchorGravity="bottom"
+    app:layout_constraintBottom_toBottomOf="parent">
+
+
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/curr_time"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="0dp"
+        android:text="0:00"
+        android:textAlignment="center"
+        android:translationX="0dp"
+        app:layout_alignSelf="flex_end" />
+
+    <android.support.v7.widget.AppCompatImageView
+        android:id="@+id/skip_prev"
+        android:layout_width="wrap_content"
+        android:layout_height="80dp"
+        android:adjustViewBounds="true"
+        android:cropToPadding="true"
+        app:layout_maxHeight="50dp"
+        app:srcCompat="@drawable/ic_skip_previous_black_24dp" />
+
+    <android.support.v7.widget.AppCompatImageView
+        android:id="@+id/play_pause"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        app:layout_maxHeight="50dp"
+        app:srcCompat="@drawable/ic_play_arrow_black_24dp" />
+
+    <android.support.v7.widget.AppCompatImageView
+        android:id="@+id/skip_next"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        app:layout_maxHeight="50dp"
+        app:srcCompat="@drawable/ic_skip_next_black_24dp" />
+
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/end_time"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="0dp"
+        android:text="0:00"
+        android:textAlignment="center"
+        android:translationX="0dp"
+        app:layout_alignSelf="flex_end" />
+
+    <android.support.v7.widget.AppCompatSeekBar
+        android:id="@+id/seek_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:theme="@style/seektheme"
+        app:layout_alignSelf="baseline" />
+
+
+</com.google.android.flexbox.FlexboxLayout>
+
+</android.support.constraint.ConstraintLayout>

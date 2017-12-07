@@ -60,6 +60,5 @@ public class MainActivity extends Fragment{
 		tracksList = baseActivity.getCurrTracks();
 		viewAdpt = new TracksAdapter(getContext(), tracksList);
 		tracksView.setAdapter(viewAdpt);
-
 	}
 }

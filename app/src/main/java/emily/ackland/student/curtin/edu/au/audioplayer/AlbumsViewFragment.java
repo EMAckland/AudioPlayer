@@ -58,7 +58,6 @@ public class AlbumsViewFragment extends Fragment {
 		MyUtils.getTracks(getContext(),null);
 		albumsView = view.findViewById(R.id.albums_table);
 		generateAlbumView();
-
 	}
 
 	private void generateAlbumView() {
@@ -82,11 +81,11 @@ public class AlbumsViewFragment extends Fragment {
 			albumArt.setOnClickListener(new View.OnClickListener() {
 				@Override
 				public void onClick(View view) {
-					ArrayList<AudioFile> tracks = ((Album)view.getTag()).getTracks();
-					for (AudioFile a : tracks)
+					ArrayList<AudioFile> albumtracks = ((Album)view.getTag()).getTracks();
+					for (AudioFile a : albumtracks)
 						MyUtils.print("TRACKS "+a.getTitle());
-					((BaseActivity)getActivity()).setTracksSource(ALBUMS_FRAGMENT);
-					((BaseActivity)getActivity()).setAlbumTracks(view, tracks);
+					((BaseActivity)getActivity()).setTracksSource(false);
+					((BaseActivity)getActivity()).setAlbumTracks(view, albumtracks);
 					((BaseActivity)getActivity()).loadNewFragmentWithBackstack(TRACKS_FRAGMENT,BASE_ACTIVITY);
 				}
 			});

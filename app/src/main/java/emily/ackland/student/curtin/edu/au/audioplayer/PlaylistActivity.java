@@ -72,7 +72,7 @@ public class PlaylistActivity extends Fragment {
 			@Override
 			public void onItemClick(AdapterView<?> arg0, View view, int pos, long arg3) {
 				((BaseActivity)getActivity()).setCurrPlaylist((playlistskeys.get(pos)));
-				((BaseActivity)getActivity()).setTracksSource(PLAYLISTS_FRAGMENT);
+				((BaseActivity)getActivity()).setTracksSource(true);
 				FragmentTransaction tx = getFragmentManager().beginTransaction();
 				tx.replace(R.id.main_drawer_fram, Fragment.instantiate(getContext(),
 								TRACKS_FRAGMENT),

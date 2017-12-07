@@ -1,10 +1,41 @@
 <resources>
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="colorPrimary">#673AB7</item>
-        <item name="colorPrimaryDark">#512DA8</item>
-        <item name="colorAccent">#FF4081</item>
-        <item name="android:windowTranslucentStatus">true</item>
+    <style name="AppTheme.NoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+    </style>
+    <style name="MyMaterialTheme" parent="MyMaterialTheme.Base">
 
+    </style>
+
+    <style name="MyMaterialTheme.Base" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
+        <item name="actionOverflowButtonStyle">@style/Widget.AppCompat.PopupMenu.Overflow</item>
+    </style>
+
+    <style name="DrawerArrowStyle" parent="@style/Widget.AppCompat.DrawerArrowToggle">
+        <item name="spinBars">true</item>
+        <item name="color">@android:color/black</item>
+    </style>
+    <style name="tripledots" parent="@style/Widget.AppCompat.Light.ActionButton.Overflow">
+        <item name="color">@android:color/white</item>
+    </style>
+    <style name="seektheme" parent="Widget.AppCompat.SeekBar">
+        <item name="android:progressBackgroundTint">@android:color/darker_gray</item>
+        <item name="android:progressTint">@color/shadow</item>
+        <item name="android:colorControlActivated">@android:color/black</item>
+    </style>
+    <style name="shadowtheme" >
+        <item name="android:background">@drawable/shadow_default</item>
+        <item name="android:adjustViewBounds">true</item>
+        <item name="android:scaleX">2</item>
+    </style>
+    <style name="shadow">
+        <item name="android:drawable">@drawable/shadow_default</item>
     </style>
 </resources>
